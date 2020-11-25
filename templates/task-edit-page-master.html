@@ -1,0 +1,52 @@
+{% extends "layout2.html" %}
+{% block title %}{{ task.title }}{% endblock %}
+{% block content %}
+    <h1 class="title">{{ task.title }}</h1>
+<form action="" method="post" name="task_edit">
+
+    <table>
+        <tr>
+            <th>
+                Title:
+            </th>
+            <td>
+                <label class="label">
+                <input type="text" name="new_name" placeholder="{{task.title}}">
+                </label>
+            </td>
+        </tr>
+        {% if task.url %}
+        <tr>
+            <th>
+                Year:
+            </th>
+            <td>
+                <label class="label">
+                    <input type="text" name="new_url" placeholder="{{task.url}}">
+                </label>
+            </td>
+        </tr>
+        {% endif %}
+        {% if task.task_comment %}
+
+            <table>
+                <tr>
+                    <td>
+                        <th>Comment: </th>
+                    </td>
+                    <td>
+                        <p> {{task.task_comment}}</p>
+                    </td>
+                </tr>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+    </table>
+    <a href="">
+        <button class="button is-info">
+            save
+        </button>
+    </a>
+</form>
+{% endblock %}

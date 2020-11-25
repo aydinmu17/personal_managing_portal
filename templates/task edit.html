@@ -1,0 +1,25 @@
+{% extends "layout2.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+<form action="" method="post" name="task_edit" >
+    <div class="field">
+        <label for="taskname" class="label" >Task</label>
+        <div>
+            <input type="text" name="task" class="input" required="required">
+        </div>
+    </div>
+
+    <div class="field">
+        <label for="taskname" class="label is-right" >Url</label>
+        <div>
+            <input type="number" name="url" class="input" min="{{url_min}}" max="{{url_min}}">
+        </div>
+    </div>
+
+    <div class="field is-center">
+        <div class="control">
+            <button class="button is-small">Save</button>
+        </div>
+    </div>
+</form>
+{% endblock %}

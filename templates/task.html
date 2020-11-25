@@ -1,0 +1,41 @@
+{% extends "layout2.html" %}
+{% block title %}{{ task.title }}{% endblock %}
+{% block content %}
+    <h1 class="title">{{ task.title }}</h1>
+    <table>
+        <tr>
+            <th>
+                Title:
+            </th>
+            <td>
+                {{ task.title }}
+            </td>
+        </tr>
+        {% if task.year %}
+        <tr>
+            <th>
+                Year:
+            </th>
+            <td>
+                {{ task.year}}
+            </td>
+        </tr>
+        {% endif %}
+        {% if task.task_comment %}
+
+            <table>
+                <tr>
+                    <td>
+                        <th>Comment: </th>
+                    </td>
+                    <td>
+                        <p> {{task.task_comment}}</p>
+                    </td>
+                </tr>
+                </tr>
+            </table>
+        </div>
+        {% endif %}
+    </table>
+
+{% endblock %}

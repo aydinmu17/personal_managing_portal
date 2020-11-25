@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8"/>
+    <title>My tasks - {% block title %} {% endblock %} </title>
+
+      <link rel="stylesheet"
+          href="/static/bulma/css/bulma.min.css"/>
+      <link rel="stylesheet"
+          href="{{ url_for('static', filename='mytasks.css') }}"/>
+  </head>
+  <body>
+     <header>
+      <nav class="navbar" aria-label="main navigation">
+        <div>
+
+        </div>
+        <div class="navbar-brand">
+          <span class="navbar-item">
+            <a class="button is-link" href="{{ url_for('home_page') }}">Home</a>
+          </span>
+          <span class="navbar-item">
+            <a class="button is-link" href="{{ url_for('tasks_page') }}">List tasks</a>
+          </span>
+        </div>
+      </nav>
+    </header>
+  {% block content %}{% endblock %}
+  <footer class="copyright">
+      &copy Muzo 2020
+  </footer>
+  </body>
+</html>

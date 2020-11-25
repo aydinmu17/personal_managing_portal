@@ -1,0 +1,33 @@
+{% extends "layout2.html" %}
+{% block title %}Home{% endblock %}
+{% block content %}
+
+<form action="" method="post" name="task_list">
+
+
+    <h1 class="title">Tasks</h1>
+    {% if tasks %}
+    <table class="table is-striped is-fullwidth">
+      {% for task_key, task in tasks %}
+      <tr>
+        <td>
+            <label class="checkbox">
+                <input type="checkbox" name="task_keys" value="{{task_key}}">
+            </label>
+            <a href="{{ url_for('task_page', task_key=task_key)}}">
+            {{ task.title }}
+            {% if task.year %} ({{ task.year }}) {% endif %}
+            </a>
+
+        </td>
+      </tr>
+      {% endfor %}
+    </table>
+      <div class="field is-grouped">
+        <div class="control">
+          <button class="button is-danger is-small" name="delete">Delete</button>
+        </div>
+      </div>
+</form>
+{% endif %}
+{% endblock %}
