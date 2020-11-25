@@ -1,6 +1,10 @@
-from flask import abort, Flask, render_template, current_app,request, redirect, url_for
+from flask import g, flash, abort, Flask, render_template, current_app, request, redirect, url_for
 from datetime import datetime
 from task import Task
+from flask_login import login_user, login_required, current_user, logout_user
+from users import get_user, User
+from passlib.hash import pbkdf2_sha256 as hasher
+from form import LoginForm
 
 
 def home_page():
@@ -29,7 +33,10 @@ def main_page():
     return render_template("main.html", tasks=sorted(tasks))
 
 
+@login_required
 def task_add_page():
+    if not (current_user.is_admin or current_user.is_coordi):
+        abort(401)
     if request.method == "GET":
         return render_template(
             "task edit.html", url_min=19, url_max=203
@@ -70,7 +77,7 @@ def edit_task_page_master(task_key):
         db = current_app.config["db"]
         task = db.get_task(task_key)
         return render_template("task-edit-page-master.html", task=task
-                                )
+                               )
     else:
         db = current_app.config["db"]
         task = db.get_task(task_key)
@@ -80,3 +87,27 @@ def edit_task_page_master(task_key):
         return redirect(url_for('task_page', task_key=task_key))
 
 
+def login_page():
+    # Here we use a class of some kind to represent and validate our
+    # client-side form data. For example, WTForms is a library that will
+    # handle this for us, and we use a custom LoginForm to validate.
+    form = LoginForm()
+    if form.validate_on_submit():
+        username = request.form["username"]
+        user = get_user(username)
+        if user is not None:
+            password = request.form["password"]
+            if hasher.verify(password, user.password):
+                g.userid = username
+                login_user(user)
+                flash("Hoşgeldin "+ user.username)
+                next_page = request.args.get('next', url_for("main_page"))
+                return redirect(next_page)
+        flash("Invalid credentials.")
+    return render_template("login.html", form=form)
+
+
+def logout_page():
+    logout_user()
+    flash("You have logged out.")
+    return redirect(url_for("main_page"))
