@@ -14,7 +14,7 @@
                   <div class="control">
                     {{ form.username(required=True, autofocus=True,
                                      class='input is-large',
-                                     placeholder='your username') }}
+                                     placeholder='mail adress or tel phone') }}
                   </div>
                   {% for error in form.username.errors %}
                     <p class="help has-background-warning">
@@ -34,10 +34,13 @@
                     </p>
                   {% endfor %}
                 </div>
-
                 <button class="button is-block is-info is-large is-fullwidth">
                   Login
                 </button>
+                <br><br>
+                 If you are not signed,
+                        <a href="{{url_for('signup_page')}}">Click here</a> to sign up
+
               </form>
             </div>
           </div>

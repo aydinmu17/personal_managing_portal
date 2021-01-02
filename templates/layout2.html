@@ -17,8 +17,9 @@
         <div class="column is-pulled-right">
             {% if not current_user.is_authenticated %}
                 <a class="button is-link" href="{{ url_for('login_page') }}">Log in</a>
+                <a class="button is-link" href="{{ url_for('signup_page') }}">Sign Up</a>
             {% else %}
-            <p style="top: 50%;color: white"> Hoşgeldin {{ current_user.username }}</p>
+            <p style="top: 50%;color: white"> Hoşgeldin {{ current_user.firstname }}</p>
                 <a style="top: 50%" class="button is-link" href="{{ url_for('logout_page') }}">Log out</a>
             {% endif %}
         </div>
@@ -32,9 +33,15 @@
     </div>
 
 
+
     <div  class="container has-text-centered" id="content">
+        {% for message in get_flashed_messages() %}
+        <div class="notification is-info">{{ message }}</div>
+        {% endfor %}
         {% block content %} {% endblock %}</div>
+
 </body>
+
 
 <footer class="footer">
     &copy Muzo 2020

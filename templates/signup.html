@@ -1,0 +1,144 @@
+{% extends "layout2.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="column is-4 is-offset-4">
+                {%if user%}
+                <h3 class="title has-text-grey">Update</h3>
+                {%else%}
+                <h3 class="title has-text-grey">Sign Up</h3>
+                {%endif%}
+                <div class="box">
+                    <form action="" method="post" name="login">
+                        {{ form.csrf_token }}
+
+                        <div class="field">
+                            <div class="control">
+                                {%if user%}
+                                {% set firstname = user['first_name'] %}
+                                {{ form.firstname(required=True, autofocus=True,
+                                class='input is-large',
+                                value = firstname
+                                ) }}
+                                {%else%}
+                                {{ form.firstname(required=True, autofocus=True,
+                                class='input is-large',
+                                placeholder='firstname'
+                                ) }}
+                                {%endif%}
+
+                            </div>
+                            {% for error in form.firstname.errors %}
+                            <p class="help has-background-warning">
+                                {{ error }}
+                            </p>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                                {%if user%}
+                                {% set secondname = user['second_name'] %}
+                                {{ form.secondname(required=True, autofocus=True,
+                                class='input is-large',
+                                value = secondname
+                                ) }}
+                                {%else%}
+                                {{ form.secondname(required=True, autofocus=True,
+                                class='input is-large',
+                                placeholder='secondname'
+                                ) }}
+                                {%endif%}
+
+                            </div>
+                            {% for error in form.secondname.errors %}
+                            <p class="help has-background-warning">
+                                {{ error }}
+                            </p>
+                            {% endfor %}
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                {%if user%}
+                                {% set mail = user['mail'] %}
+                                {{ form.mail(required=True, autofocus=True,
+                                class='input is-large',
+                                value = mail
+                                ) }}
+                                {%else%}
+                                {{ form.mail(required=True, autofocus=True,
+                                class='input is-large',
+                                placeholder='mail'
+                                ) }}
+                                {%endif%}
+                            </div>
+                            {% for error in form.mail.errors %}
+                            <p class="help has-background-warning">
+                                {{ error }}
+                            </p>
+                            {% endfor %}
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                {%if user%}
+                                {% set phone = user['phone'] %}
+                                {{ form.phone(required=True, autofocus=True,
+                                class='input is-large',
+                                value = phone
+                                ) }}
+                                {%else%}
+                                {{ form.phone(required=True, autofocus=True,
+                                class='input is-large',
+                                placeholder='phone'
+                                ) }}
+                                {%endif%}
+                            </div>
+                            {% for error in form.phone.errors %}
+                            <p class="help has-background-warning">
+                                {{ error }}
+                            </p>
+                            {% endfor %}
+                        </div>
+
+                        <div class="field">
+                            <div class="control">
+                                {{ form.password(required=True, autofocus=True,
+                                class='input is-large',
+                                placeholder='password') }}
+                            </div>
+                            {% for error in form.password.errors %}
+                            <p class="help has-background-warning">
+                                {{ error }}
+                            </p>
+                            {% endfor %}
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                {{ form.validpass(required=True, autofocus=True,
+                                class='input is-large',
+                                placeholder='password again') }}
+                            </div>
+                            {% for error in form.validpass.errors %}
+                            <p class="help has-background-warning">
+                                {{ error }}
+                            </p>
+                            {% endfor %}
+                        </div>
+                        <button class="button is-block is-info is-large is-fullwidth">
+                            Sign Up
+                        </button>
+                                        {%if not user%}
+                        Are you already employee of this company.<br>
+                        <a href="{{url_for('login_page')}}">Click here</a> to log in
+                {%endif%}
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

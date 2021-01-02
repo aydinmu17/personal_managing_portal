@@ -14,7 +14,7 @@
             <label class="checkbox">
                 <input type="checkbox" name="task_keys" value="{{task_key}}">
             </label>
-            <a href="{{ url_for('task_page', task_key=task_key)}}">
+            <a href="{{ url_for('task_page', url=task.url)}}">
             {{ task.title }}
             {% if task.year %} ({{ task.year }}) {% endif %}
             </a>

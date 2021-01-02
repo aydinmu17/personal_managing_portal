@@ -10,7 +10,7 @@
             {% for task_key, task in tasks%}
 
                 <td style="padding: 50px;text-align: center;vertical-align: middle; ">
-                    <a href="{{url_for('task_page', task_key=task_key)}}">
+                    <a href="{{url_for('task_page', url=task.url)}}">
                         <button class="button is-centered is-primary" style="border-width: 50px; ">
                             <p>{{ task.title }} </p>
 
