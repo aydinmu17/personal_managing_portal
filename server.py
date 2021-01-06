@@ -11,7 +11,7 @@ login_manager = LoginManager()
 mydb = mysql.connector.connect(
     host= "localhost",
     user="root",
-    password="root",
+    password="",
     database="emp"
 )
 cursor = mydb.cursor(dictionary=True)

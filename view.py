@@ -131,11 +131,12 @@ def signup_page():
                 flash("geçerli bi telefon giriniz")
                 return redirect(url_for('signup_page'))
 
-            cursor.execute("SELECT * FROM person")
-            numberofuser = len(cursor.fetchall())
+            cursor.execute("SELECT MAX(pid) FROM person")
+
+            max_pid = cursor.fetchone()['MAX(pid)']
             sql = "INSERT INTO person(pid,pass,first_name,second_name,phone,mail,score) " \
                   "VALUES (%s,%s,%s,%s,%s,%s,%s)"
-            val = (numberofuser + 1, password, request.form["firstname"],
+            val = (max_pid + 1, password, request.form["firstname"],
                    request.form["secondname"], request.form["phone"], request.form["mail"],0)
             cursor.execute(sql, val)
             mydb.commit()

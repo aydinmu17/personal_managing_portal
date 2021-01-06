@@ -8,4 +8,4 @@ PASSWORDS = {
 }
 
 ADMIN_USERS = ["admin", 15,5]
-COORDINATORS = ["cordi"]
+COORDINATORS = ["cordi",2,16]
