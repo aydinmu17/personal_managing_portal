@@ -18,7 +18,6 @@ def tasks_page():
     tasks = TaskManager.get_tasks()
     return render_template("tasks.html", tasks=sorted(tasks))
 
-
 @login_required
 def task_page(url):
     print(url)
@@ -37,11 +36,30 @@ def task_page(url):
     return redirect(url_for(string))
     # return render_template("task.html", task=task)
 
+def define_tasks(user):
+    TaskManager = current_app.config["TaskManager"]
+    if user.is_admin:
+        TaskManager.add_task(Task("Add Events", "main"))
+        TaskManager.add_task(Task("All Employees", "all_persons"))
+        TaskManager.add_task(Task("My profile", "my_profile"))
+
+    elif user.is_coordi:
+        TaskManager.add_task(Task("My projects", "my_projects"))
+        TaskManager.add_task(Task("My Team", "my_team"))
+        TaskManager.add_task(Task("My profile", "my_profile"))
+    else:
+        TaskManager.add_task(Task("Enroll Project", "enrol_project"))
+        TaskManager.add_task(Task("My profile", "my_profile"))
+        TaskManager.add_task(Task("My projects", "my_projects"))
 
 @login_required
 def main_page():
     TaskManager = current_app.config["TaskManager"]
     tasks = TaskManager.get_tasks()
+    if not tasks:
+        define_tasks(current_user)
+
+
     return render_template("main.html", tasks=sorted(tasks))
 
 
@@ -172,16 +190,9 @@ def login_page():
 
                 # flash("Hoşgeldin" + user.username)
                 next_page = request.args.get('next', url_for("main_page"))
-                if user.is_admin:
-                    TaskManager.add_task(Task("Add Events", "main"))
-                    TaskManager.add_task(Task("All Employees", "all_persons"))
+                define_tasks(user)
 
-                    TaskManager.add_task(Task("My profile", "my_profile"))
 
-                elif user.is_coordi:
-                    TaskManager.add_task(Task("My Events", "my_events"))
-                    TaskManager.add_task(Task("My Team", "my_team"))
-                    TaskManager.add_task(Task("My profile", "my_profile"))
 
                 return redirect(next_page)
         flash("Invalid credentials.")
