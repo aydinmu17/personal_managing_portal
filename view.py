@@ -319,7 +319,10 @@ def my_projects_page():
     if current_user.is_admin:
         cursor.execute("SELECT * FROM PROJECT inner JOIN Person on person.pid = project.manager_id order by is_active desc")
     else:
-        cursor.execute("SELECT * FROM ORGANIZATION JOIN PROJECT on organization.pr_id = project.pr_id where pid=%(pid)s order by is_active desc",{'pid': current_user.username})
+        cursor.execute("SELECT * FROM (ORGANIZATION"
+                       " INNER JOIN PROJECT on organization.pr_id = project.pr_id "
+                       "INNER JOIN PERSON ON PERSON.PID = PROJECT.MANAGER_ID) "
+                       "where organization.pid=%(pid)s ORDER by is_active desc ",{'pid': current_user.username})
 
     list = cursor.fetchall()
 
@@ -354,7 +357,7 @@ def add_project():
 
 @login_required
 def update_project_page(project_id):
-    if not (current_user.is_admin or current_user.is_teamleader):
+    if not (current_user.is_admin or current_user.is_projectmanager):
         abort(403)
 
     cursor = current_app.config["cursor"]
@@ -393,5 +396,4 @@ def delete_project(project_id):
     mydb.commit()
     flash(project['pr_name']+" removed")
     return redirect(url_for('my_projects_page'))
-
 

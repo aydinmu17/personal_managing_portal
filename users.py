@@ -11,6 +11,7 @@ class User(UserMixin):
         self.active = True
         self.is_admin = False
         self.is_teamleader = False
+        self.is_projectmanager = False
 
     def get_id(self):
         return self.username
@@ -38,4 +39,9 @@ def get_user(user_id):
             cursor.execute("SELECT * FROM TEAM WHERE leader_id=%(pid)s", {'pid': user_id})
             if not len(cursor.fetchall()) <= 0:
                 user.is_teamleader = True
+
+            cursor.execute("SELECT * FROM project WHERE manager_id=%(pid)s", {'pid': user_id})
+            if not len(cursor.fetchall()) <= 0:
+                user.is_projectmanager = True
+
     return user
