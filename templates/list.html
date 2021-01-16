@@ -1,0 +1,33 @@
+{% extends "layout2.html" %}
+{% block title %}{{title}}{% endblock %}
+{% block content %}
+
+<h1 class="title">{{title}}</h1>
+{% if list %}
+    <form action="" method="post" >
+
+<table class="table is-striped is-fullwidth">
+    {% for x in list %}
+
+    <tr >
+
+
+        <td>
+                {{ x['pr_name']}}
+        </td>
+
+
+    </tr>
+
+    {% endfor %}
+</table>
+    {% if title == "Select Employee" %}
+        <button class="button is-info" >
+        Next
+        </button>
+
+    {% endif %}
+    </form>
+{% endif %}
+
+{% endblock %}

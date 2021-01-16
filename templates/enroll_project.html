@@ -1,0 +1,75 @@
+{% extends "layout2.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <div class="column is-4 is-offset-4">
+                    {% if user %}
+                        <h3 class="title has-text-grey">Update</h3>
+                    {% else %}
+                        <h3 class="title has-text-grey">Sign Up</h3>
+                    {% endif %}
+                    <div class="box">
+                        <form action="" method="post" name="login">
+                            {{ form.csrf_token }}
+
+
+
+                            <div class="column is-full">
+                                <div class="control is-full">
+                                    <p class=""> First Name :
+                                    <p><input disabled class="input is-large" id="firstname" name="firstname"
+                                              type="text" value="{{ user['first_name'] }}">
+                                </div>
+                            </div>
+                            <div class="column is-full">
+                                <div class="control">
+                                    <p class=""> Second Name :
+                                    <p><input disabled class="input is-large" id="secondname" name="secondname"
+                                              type="text" value="{{ user['second_name'] }}">
+                                </div>
+                            </div>
+                            <div class="column is-full">
+                                <div class="control">
+                                    <p class=""> Phone :
+                                    <p><input disabled class="input is-large" id="phone" name="phone"
+                                              type="text" value="{{ user['phone'] }}">
+                                </div>
+                            </div>
+                            <div class="column is-full">
+                                <div class="control">
+                                    <p class=""> Mail Adress :
+                                    <p><input disabled class="input is-large" id="mail" name="mail"
+                                              type="text" value="{{ user['mail'] }}">
+                                </div>
+                            </div>
+
+                            <br><a href="{{ url_for('update_profile_page', user_id=user['pid']) }}"
+                                   class="button is-block is-warning is-small is-fullwidth">
+                            Update data
+                        </a>
+                            <div class="column is-full">
+                                <div class="control">
+                                    <p class=""> Choose Project :
+                                        <select class="select is-large" id="project_id" name="project_id">
+                                            {% for project in active_projects %}
+
+                                                <option value={{ project['pr_id'] }}>{{ project['pr_id'] }} - {{ project['pr_name'] }}</option>
+
+                                            {% endfor %}
+
+                                        </select>
+                                </div>
+                            </div>
+                            <button class="button is-block is-success is-large is-fullwidth">
+                                Enroll
+                            </button>
+
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+{% endblock %}
