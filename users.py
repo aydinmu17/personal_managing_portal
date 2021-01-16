@@ -20,7 +20,6 @@ class User(UserMixin):
 
 
 def get_user(user_id):
-    print("user id is: ", user_id)
     cursor = current_app.config["cursor"]
     cursor.execute("SELECT * FROM person WHERE pid=%(pid)s", {'pid': user_id})
     users = cursor.fetchall()

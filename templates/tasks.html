@@ -4,10 +4,20 @@
 
 <h1 class="title">{{title}}</h1>
 {% if persons %}
+    <form action="" method="post" >
+
 <table class="table is-striped is-fullwidth">
     {% for person in persons %}
 
     <tr class="clickable" data-href="{{url_for('profile_page', user_id=person['pid'])}}">
+    {% if title == "Select Employee" %}
+        <td>
+                            <label class="radio">
+                                <input type="radio" name="user_id" value="{{ person['pid'] }}" required="required">
+                            </label>
+
+        </td>
+        {% endif %}
         <td>
             <p >
                 {{ person['pid'] }}
@@ -37,6 +47,7 @@
         </td>
      </a>
     </tr>
+            {% if title != "Select Employee" %}
 <script>
     var elements = document.getElementsByClassName('clickable');
 for (var i = 0; i < elements.length; i++) {
@@ -49,8 +60,16 @@ for (var i = 0; i < elements.length; i++) {
     })
 }
 </script>
+            {% endif %}
     {% endfor %}
 </table>
+    {% if title == "Select Employee" %}
+        <button class="button is-info" >
+        Next
+        </button>
+
+    {% endif %}
+    </form>
 {% endif %}
 
 {% endblock %}

@@ -4,15 +4,10 @@ from task import Task
 from flask_login import login_user, login_required, current_user, logout_user
 from users import get_user, User
 from passlib.hash import pbkdf2_sha256 as hasher
-from form import LoginForm, SignUpForm
+from form import *
 
 
-def home_page():
-    today = datetime.today()
-    day_name = today.strftime("%A")
-    return render_template("home.html", day=day_name)
-
-
+@login_required
 def tasks_page():
     TaskManager = current_app.config["TaskManager"]
     tasks = TaskManager.get_tasks()
@@ -20,7 +15,6 @@ def tasks_page():
 
 @login_required
 def task_page(url):
-    print(url)
     TaskManager = current_app.config["TaskManager"]
     tasks = TaskManager.get_tasks()
     task = None
@@ -42,13 +36,14 @@ def define_tasks(user):
         TaskManager.add_task(Task("Add Events", "main"))
         TaskManager.add_task(Task("All Employees", "all_persons"))
         TaskManager.add_task(Task("My profile", "my_profile"))
+        TaskManager.add_task(Task("Enroll Project", "enroll_project"))
 
     elif user.is_coordi:
         TaskManager.add_task(Task("My projects", "my_projects"))
         TaskManager.add_task(Task("My Team", "my_team"))
         TaskManager.add_task(Task("My profile", "my_profile"))
     else:
-        TaskManager.add_task(Task("Enroll Project", "enrol_project"))
+        TaskManager.add_task(Task("Enroll Project", "enroll_project"))
         TaskManager.add_task(Task("My profile", "my_profile"))
         TaskManager.add_task(Task("My projects", "my_projects"))
 
@@ -58,7 +53,6 @@ def main_page():
     tasks = TaskManager.get_tasks()
     if not tasks:
         define_tasks(current_user)
-
 
     return render_template("main.html", tasks=sorted(tasks))
 
@@ -79,7 +73,7 @@ def task_add_page():
         TaskManager.add_task(task)
         return redirect(url_for("task_page", url=task.url))
 
-
+@login_required
 def delete_task_page():
     if not current_user.is_admin:
         abort(403)
@@ -91,7 +85,7 @@ def delete_task_page():
 
     return render_template("task-delete-page.html", tasks=sorted(tasks))
 
-
+@login_required
 def edit_task_page():
     TaskManager = current_app.config["TaskManager"]
     if request.method == "GET":
@@ -103,7 +97,7 @@ def edit_task_page():
 
         return redirect(url_for('edit_task_page_master', task_key=form_task_key))
 
-
+@login_required
 def edit_task_page_master(task_key):
     if request.method == "GET":
         TaskManager = current_app.config["TaskManager"]
@@ -171,7 +165,6 @@ def login_page():
     # Here we use a class of some kind to represent and validate our
     # client-side form data. For example, WTForms is a library that will
     # handle this for us, and we use a custom LoginForm to validate.
-    TaskManager = current_app.config["TaskManager"]
     form = LoginForm()
     if form.validate_on_submit():
         username = request.form["username"]
@@ -202,7 +195,7 @@ def login_page():
     else:
         return redirect(url_for('main_page'))
 
-
+@login_required
 def logout_page():
     logout_user()
     TaskManager = current_app.config["TaskManager"]
@@ -215,6 +208,7 @@ def my_profile_page():
     user_id = current_user.username
     return redirect(url_for('profile_page', user_id=user_id))
 
+@login_required
 def profile_page(user_id):
     if not current_user.username == user_id:
         if not current_user.is_admin:
@@ -230,6 +224,7 @@ def update_profile_page(user_id):
     if not current_user.username == user_id:
         if not current_user.is_admin:
             abort(403)
+
 
     form = SignUpForm()
     cursor = current_app.config["cursor"]
@@ -264,3 +259,60 @@ def update_profile_page(user_id):
             return redirect(url_for('login_page'))
         flash("pass is not true")
     return render_template("signup.html", form=form, user=user)
+
+@login_required
+def enroll_project_page():
+    user_id = current_user.username
+    if current_user.is_admin:
+        if request.method == "GET":
+            cursor = current_app.config["cursor"]
+            cursor.execute("SELECT * FROM person")
+            persons = cursor.fetchall()
+            title = "Select Employee"
+            return render_template("tasks.html", persons=persons, title=title)
+        else:
+            user_id = request.form["user_id"]
+            return redirect(url_for('enroll_project', user_id=user_id))
+    return redirect(url_for('enroll_project', user_id=user_id))
+
+
+@login_required
+def enroll_project(user_id):
+    if not current_user.username == user_id:
+        if not current_user.is_admin:
+            if not current_user.is_coordi:
+                abort(403)
+
+    cursor = current_app.config["cursor"]
+    mydb = current_app.config["mydb"]
+    form = EnrollProject()
+    cursor.execute("SELECT * FROM PERSON WHERE pid=%(pid)s", {'pid': user_id})
+    user = cursor.fetchall()[0]
+    cursor.execute("SELECT * FROM PROJECT WHERE is_active=1")
+    active_projects = cursor.fetchall()
+    if form.validate_on_submit():
+        project_id = request.form["project_id"]
+        cursor.execute("SELECT * FROM organization WHERE pid=%(pid)s and pr_id=%(pr_id)s", {'pid': user_id, 'pr_id' : project_id})
+        control = cursor.fetchall()
+        if len(control) > 0:
+            flash("You have already enrolled")
+            return render_template("enroll_project.html", form=form, user=user, active_projects=active_projects)
+
+        sql = "INSERT INTO organization(pid,pr_id) " \
+              "VALUES (%s,%s)"
+        val = (user_id,project_id)
+        cursor.execute(sql, val)
+        mydb.commit()
+        flash("You have enrolled")
+        return redirect(url_for("main_page"))
+
+    return render_template("enroll_project.html", form=form,user=user,active_projects=active_projects)
+
+@login_required
+def my_projects_page():
+    title= "My Projects"
+    cursor = current_app.config["cursor"]
+    cursor.execute("SELECT * FROM ORGANIZATION JOIN PROJECT where pid=%(pid)s",{'pid': current_user.username})
+    list = cursor.fetchall()
+
+    return render_template("list.html", title=title, list=list)

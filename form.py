@@ -17,3 +17,9 @@ class SignUpForm(FlaskForm):
     password = PasswordField("password", validators=[DataRequired()])
     validpass = PasswordField("validpass", validators=[DataRequired()])
 
+
+class EnrollProject(FlaskForm):
+    project_id = StringField("project_id", validators=[DataRequired()])
+
+
+

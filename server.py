@@ -24,6 +24,7 @@ def load_user(user_id):
 
 def crate_app():
     app = Flask(__name__)
+    #Routes
     app.add_url_rule("/login", view_func=view.login_page, methods=["GET", "POST"])
     app.add_url_rule("/signup", view_func=view.signup_page, methods=["GET", "POST"])
     app.add_url_rule("/logout", view_func=view.logout_page, methods=["GET", "POST"])
@@ -39,6 +40,9 @@ def crate_app():
     app.add_url_rule("/main", view_func=view.main_page)
     app.add_url_rule("/allpersons", view_func=view.all_persons_page)
     app.add_url_rule("/task-edit/<int:task_key>", view_func=view.edit_task_page_master, methods=["GET", "POST"])
+    app.add_url_rule("/enrollProject", view_func=view.enroll_project_page, methods=["GET", "POST"])
+    app.add_url_rule("/enroll/<int:user_id>", view_func=view.enroll_project, methods=["GET", "POST"])
+    app.add_url_rule("/myProjects", view_func=view.my_projects_page, methods=["GET", "POST"])
 
     TaskManager = Tasks()
 
