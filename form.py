@@ -26,6 +26,10 @@ class AddProject(FlaskForm):
     manager_id = SelectField(u'manager name', choices=[])
     is_active = SelectField(u'is_active', choices=[(0,"No"),(1,"Yes")])
 
+class AddTeam(FlaskForm):
+    team_name = StringField("team_name", validators=[DataRequired()])
+    leader_id = SelectField(u'leader_id', choices=[])
+    project_id = SelectField(u'project_id', choices=[])
 
 
 

@@ -33,11 +33,11 @@ def task_page(url):
 def define_tasks(user):
     TaskManager = current_app.config["TaskManager"]
     if user.is_admin:
-        TaskManager.add_task(Task("Add Events", "main"))
         TaskManager.add_task(Task("All Employees", "all_persons"))
         TaskManager.add_task(Task("My profile", "my_profile"))
         TaskManager.add_task(Task("Enroll Project", "enroll_project"))
         TaskManager.add_task(Task("Projects", "my_projects"))
+        TaskManager.add_task(Task("Add team", "add_team"))
 
 
     elif user.is_teamleader:
@@ -397,3 +397,71 @@ def delete_project(project_id):
     flash(project['pr_name']+" removed")
     return redirect(url_for('my_projects_page'))
 
+def add_team_page():
+    if not current_user.is_admin:
+        abort(403)
+
+    form = AddTeam()
+    cursor = current_app.config["cursor"]
+    mydb = current_app.config["mydb"]
+    cursor.execute("SELECT * FROM PERSON")
+    users = cursor.fetchall()
+    form.leader_id.choices = [(user['pid'], user['first_name'] + " " + user['second_name']) for user in users]
+
+    cursor.execute("SELECT * FROM project")
+    projects = cursor.fetchall()
+    form.project_id.choices = [(project['pr_id'], project['pr_name']) for project in projects]
+    if request.method == 'POST':
+        leader_id = request.form["leader_id"]
+        team_name = request.form["team_name"]
+        project_id = request.form["project_id"]
+
+        cursor.execute("SELECT MAX(t_id) FROM team")
+
+        max_pid = cursor.fetchone()['MAX(t_id)']
+        sql = "INSERT INTO team(t_id,leader_id,pr_id,team_name) " \
+              "VALUES (%s,%s,%s,%s)"
+        val = (max_pid + 1, leader_id, project_id, team_name)
+        cursor.execute(sql, val)
+        mydb.commit()
+        flash(team_name + " added")
+        return redirect(url_for("main_page"))
+    return render_template("add_event.html",form=form)
+
+
+@login_required
+def update_team_page(team_id):
+    if not current_user.is_admin:
+        if not current_user.is_projectmanager:
+            if not current_user.is_teamleader:
+                abort(403)
+
+    cursor = current_app.config["cursor"]
+    mydb = current_app.config["mydb"]
+    form=AddTeam()
+    cursor.execute("SELECT * FROM team where t_id=%(t_id)s",{'t_id': team_id})
+    team = cursor.fetchall()[0]
+    cursor.execute("SELECT * FROM PERSON")
+    users = cursor.fetchall()
+    userlist = [(user['pid'],user['first_name']+" "+user['second_name']) for user in users]
+    leader = get_user(team['leader_id'])
+    form.leader_id.choices = [(leader.username, leader.firstname+" "+leader.secondname)] + userlist
+
+    cursor.execute("SELECT * FROM project")
+    projects = cursor.fetchall()
+    projectlist = [(project['pr_id'], project['pr_name']) for project in projects]
+    cursor.execute("Select * from project where pr_id=%(pr_id)s",{'pr_id':team['pr_id']})
+    project = cursor.fetchall()[0]
+    form.project_id.choices = [(project['pr_id'], project['pr_name'])]+projectlist
+
+    if  request.method == 'POST':
+        sql = "UPDATE team SET team_name = %s, leader_id= %s, pr_id=%s WHERE t_id=%s"
+        data = (
+        request.form['team_name'],request.form['leader_id'], request.form['project_id'],team_id)
+        cursor.execute(sql, data)
+        mydb.commit()
+        flash("Yeyyy you updated")
+        return redirect(url_for('main_page'))
+
+
+    return render_template("add_event.html",team=team,form=form)
