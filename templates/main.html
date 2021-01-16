@@ -25,7 +25,7 @@
         </tr>
     </table>
   </div>
-{% if current_user.is_admin or current_user.is_coordi %}
+{% if current_user.is_admin or current_user.is_teamleader %}
 <div class="is-right">
     <span>
     <a  href="{{url_for('task_add_page')}} " class="button is-success is-small">

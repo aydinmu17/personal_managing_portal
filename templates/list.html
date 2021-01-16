@@ -24,6 +24,9 @@
                     <td style="font-weight: bold">
                         Project Manager
                     </td>
+                                        <td style="font-weight: bold">
+                        Activate Status
+                    </td>
 
 
                 </tr>
@@ -49,19 +52,22 @@
                         <td>
 
 
-                            {% if current_user.is_admin %}
+                            {% if current_user.is_admin or current_user.is_teamleader %}
                                 <span>
                                     <a href="{{ url_for('update_project_page', project_id=x['pr_id']) }} "
                                          class="button is-small is-warning">
                                     <p>Updadte</p>
                                     </a>
                                  </span>
+                                {% if current_user.is_admin %}
                                  <span>
                                     <a href="{{ url_for('delete_project', project_id=x['pr_id']) }} "
                                          class="button is-small is-danger">
                                     <p>Delete</p>
                                     </a>
                                  </span>
+                                                                {% endif %}
+
                             {% endif %}
                         </td>
 

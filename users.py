@@ -10,7 +10,7 @@ class User(UserMixin):
         self.secondname = 'second'
         self.active = True
         self.is_admin = False
-        self.is_coordi = False
+        self.is_teamleader = False
 
     def get_id(self):
         return self.username
@@ -37,5 +37,5 @@ def get_user(user_id):
         if not user.is_admin:
             cursor.execute("SELECT * FROM TEAM WHERE leader_id=%(pid)s", {'pid': user_id})
             if not len(cursor.fetchall()) <= 0:
-                user.is_coordi = True
+                user.is_teamleader = True
     return user

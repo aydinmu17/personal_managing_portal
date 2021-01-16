@@ -40,7 +40,7 @@ def define_tasks(user):
         TaskManager.add_task(Task("Projects", "my_projects"))
 
 
-    elif user.is_coordi:
+    elif user.is_teamleader:
         TaskManager.add_task(Task("My projects", "my_projects"))
         TaskManager.add_task(Task("My Team", "my_team"))
         TaskManager.add_task(Task("Enroll Project", "enroll_project"))
@@ -62,7 +62,7 @@ def main_page():
 
 @login_required
 def task_add_page():
-    if not (current_user.is_admin or current_user.is_coordi):
+    if not (current_user.is_admin or current_user.is_teamleader):
         abort(401)
     if request.method == "GET":
         return render_template(
@@ -118,7 +118,7 @@ def edit_task_page_master(task_key):
 
 @login_required
 def all_persons_page():
-    if not (current_user.is_admin or current_user.is_coordi):
+    if not (current_user.is_admin or current_user.is_teamleader):
         abort(401)
     cursor = current_app.config["cursor"]
     cursor.execute("SELECT * FROM person")
@@ -283,7 +283,7 @@ def enroll_project_page():
 def enroll_project(user_id):
     if not current_user.username == user_id:
         if not current_user.is_admin:
-            if not current_user.is_coordi:
+            if not current_user.is_teamleader:
                 abort(403)
 
     cursor = current_app.config["cursor"]
@@ -325,8 +325,10 @@ def my_projects_page():
 
     return render_template("list.html", title=title, list=list)
 
-
+@login_required
 def add_project():
+    if not current_user.is_admin:
+        abort(403)
     form = AddProject()
     cursor = current_app.config["cursor"]
     mydb = current_app.config["mydb"]
@@ -350,8 +352,11 @@ def add_project():
 
     return render_template("add project.html", form=form)
 
-
+@login_required
 def update_project_page(project_id):
+    if not (current_user.is_admin or current_user.is_teamleader):
+        abort(403)
+
     cursor = current_app.config["cursor"]
     mydb = current_app.config["mydb"]
     form=AddProject()
@@ -375,7 +380,10 @@ def update_project_page(project_id):
 
     return render_template("add project.html",project=project,form=form)
 
+@login_required
 def delete_project(project_id):
+    if not current_user.is_admin:
+        abort(403)
     cursor= current_app.config["cursor"]
     mydb= current_app.config["mydb"]
     cursor.execute("select * from project where pr_id=%(pr_id)s", {'pr_id': project_id})
