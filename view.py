@@ -43,6 +43,8 @@ def define_tasks(user):
     elif user.is_coordi:
         TaskManager.add_task(Task("My projects", "my_projects"))
         TaskManager.add_task(Task("My Team", "my_team"))
+        TaskManager.add_task(Task("Enroll Project", "enroll_project"))
+
         TaskManager.add_task(Task("My profile", "my_profile"))
     else:
         TaskManager.add_task(Task("Enroll Project", "enroll_project"))
@@ -315,9 +317,9 @@ def my_projects_page():
     title= "My Projects"
     cursor = current_app.config["cursor"]
     if current_user.is_admin:
-        cursor.execute("SELECT * FROM PROJECT")
+        cursor.execute("SELECT * FROM PROJECT inner JOIN Person on person.pid = project.manager_id order by is_active desc")
     else:
-        cursor.execute("SELECT * FROM ORGANIZATION JOIN PROJECT where pid=%(pid)s",{'pid': current_user.username})
+        cursor.execute("SELECT * FROM ORGANIZATION JOIN PROJECT on organization.pr_id = project.pr_id where pid=%(pid)s order by is_active desc",{'pid': current_user.username})
 
     list = cursor.fetchall()
 
@@ -331,7 +333,7 @@ def add_project():
     cursor.execute("SELECT * FROM PERSON")
     users = cursor.fetchall()
     form.manager_id.choices = [(user['pid'],user['first_name']+" "+user['second_name']) for user in users]
-    if form.validate_on_submit():
+    if request.method == 'POST':
         manager_id = request.form["manager_id"]
         project_name = request.form["project_name"]
 
@@ -343,11 +345,11 @@ def add_project():
         val = (max_pid + 1, manager_id, project_name,1)
         cursor.execute(sql, val)
         mydb.commit()
+        flash(project_name + " added")
+        return redirect(url_for("my_projects_page"))
 
-        return redirect(url_for("main_page"))
-
-    cursor.execute("SELECT * FROM project")
     return render_template("add project.html", form=form)
+
 
 def update_project_page(project_id):
     cursor = current_app.config["cursor"]
@@ -369,9 +371,19 @@ def update_project_page(project_id):
         mydb.commit()
         flash("Yeyyy you updated")
         return redirect(url_for('my_projects_page'))
-    else:
-        print("here")
 
 
     return render_template("add project.html",project=project,form=form)
+
+def delete_project(project_id):
+    cursor= current_app.config["cursor"]
+    mydb= current_app.config["mydb"]
+    cursor.execute("select * from project where pr_id=%(pr_id)s", {'pr_id': project_id})
+    project = cursor.fetchall()[0]
+    cursor.execute("DELETE FROM PROJECT WHERE pr_id=%(pr_id)s", {'pr_id': project_id})
+    cursor.execute("DELETE FROM ORGANIZATION WHERE pr_id=%(pr_id)s", {'pr_id': project_id})
+    mydb.commit()
+    flash(project['pr_name']+" removed")
+    return redirect(url_for('my_projects_page'))
+
 

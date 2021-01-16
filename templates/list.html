@@ -1,62 +1,82 @@
 {% extends "layout2.html" %}
-{% block title %}{{title}}{% endblock %}
+{% block title %}{{ title }}{% endblock %}
 {% block content %}
 
-<h1 class="title">{{title}}</h1>
-{% if list %}
-
-    <form action="" method="post" >
-
-<table class="table is-striped is-fullwidth">
- <tr >
-
-
-        <td style="font-weight: bold">
-                Proje Adı
-        </td>
-           <td style="font-weight: bold">
-                Proje Lideri
-        </td>
-
-
-
-    </tr>
-    {% for x in list %}
-
-    <tr >
-
-
-        <td>
-                {{ x['pr_name']}}
-        </td>
-            <td>
-                {{ x['manager_id']}}
-        </td>
-    <td>
-
-
- {% if current_user.is_admin %}
-            <span>
-             <a  href="{{url_for('update_project_page', project_id=x['pr_id'])}} " class="button is-small is-warning">
-                 <p>Updadte</p>
+    <h1 class="title">{{ title }}</h1>
+    {% if current_user.is_admin %}
+        <span>
+             <a href="{{ url_for('add_project') }} " class="button is-medium is-success">
+                 <p>Add new Project</p>
              </a>
     </span>
     {% endif %}
-    </td>
+    {% if list %}
+
+        <form action="" method="post">
+
+            <table class="table is-striped is-fullwidth">
+                <tr>
 
 
+                    <td style="font-weight: bold">
+                        Project Name
+                    </td>
+                    <td style="font-weight: bold">
+                        Project Manager
+                    </td>
 
-    </tr>
 
-    {% endfor %}
-</table>
-    {% if title == "Select Employee" %}
-        <button class="button is-info" >
-        Next
-        </button>
+                </tr>
+                {% for x in list %}
 
+                    <tr>
+
+
+                        <td>
+                            {{ x['pr_name'] }}
+                        </td>
+                        <td>
+                            {{ x['first_name'] }} {{ x['second_name'] }}
+                        </td>
+                                            <td>
+
+                                                {% if x['is_active'] %}
+                                                    Active
+                                                    {%  else %}
+                                                    Not Active
+                                                {% endif %}
+                        </td>
+                        <td>
+
+
+                            {% if current_user.is_admin %}
+                                <span>
+                                    <a href="{{ url_for('update_project_page', project_id=x['pr_id']) }} "
+                                         class="button is-small is-warning">
+                                    <p>Updadte</p>
+                                    </a>
+                                 </span>
+                                 <span>
+                                    <a href="{{ url_for('delete_project', project_id=x['pr_id']) }} "
+                                         class="button is-small is-danger">
+                                    <p>Delete</p>
+                                    </a>
+                                 </span>
+                            {% endif %}
+                        </td>
+
+
+                    </tr>
+
+                {% endfor %}
+            </table>
+            {% if title == "Select Employee" %}
+                <button class="button is-info">
+                    Next
+                </button>
+
+            {% endif %}
+        </form>
     {% endif %}
-    </form>
-{% endif %}
 
 {% endblock %}

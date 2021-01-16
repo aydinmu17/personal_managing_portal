@@ -60,9 +60,13 @@
                             </p>
                             {% endfor %}
                         </div>
+
+                    {% if project %}
+
+
                                             <div class="field">
                             <div class="control">
-                            <p>Project name</p>
+                            <p>Activate Status</p>
                                 {%if project%}
                                 {% set is_active = project['is_active'] %}
                                 {{ form.is_active(required=True, autofocus=True,
@@ -78,6 +82,7 @@
                             </p>
                             {% endfor %}
                         </div>
+                    {% endif %}
 
 
                         <button class="button is-block is-info is-large is-fullwidth">
