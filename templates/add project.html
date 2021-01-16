@@ -1,0 +1,98 @@
+{% extends "layout2.html" %}
+{% block title %}Login{% endblock %}
+{% block content %}
+<section class="hero">
+    <div class="hero-body">
+        <div class="container has-text-centered">
+            <div class="column is-4 is-offset-4">
+                {%if project%}
+                <h3 class="title has-text-grey">Update</h3>
+                {%else%}
+                <h3 class="title has-text-grey">Add Project</h3>
+                {%endif%}
+                <div class="box">
+                    <form action="" method="post" name="">
+                        {{ form.csrf_token }}
+
+                        <div class="field">
+                            <div class="control">
+                            <p>Choose a manager</p>
+                                {%if project%}
+                                {% set manager_id = project['manager_id'] %}
+                                {{ form.manager_id(required=True, autofocus=True,
+                                class='input is-large',
+                                placeholder = manager_id
+                                ) }}
+                                {%else%}
+                                {{ form.manager_id(required=True, autofocus=True,
+                                class='input is-large',
+                                placeholder='manager_id'
+                                ) }}
+                                {%endif%}
+
+                            </div>
+                            {% for error in form.manager_id.errors %}
+                            <p class="help has-background-warning">
+                                {{ error }}
+                            </p>
+                            {% endfor %}
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                            <p>Project name</p>
+                                {%if project%}
+                                {% set project_name = project['pr_name'] %}
+                                {{ form.project_name(required=True, autofocus=True,
+                                class='input is-large',
+                                value = project_name
+                                ) }}
+                                {%else%}
+                                {{ form.project_name(required=True, autofocus=True,
+                                class='input is-large',
+                                placeholder='Project Name'
+                                ) }}
+                                {%endif%}
+
+                            </div>
+                            {% for error in form.project_name.errors %}
+                            <p class="help has-background-warning">
+                                {{ error }}
+                            </p>
+                            {% endfor %}
+                        </div>
+                                            <div class="field">
+                            <div class="control">
+                            <p>Project name</p>
+                                {%if project%}
+                                {% set is_active = project['is_active'] %}
+                                {{ form.is_active(required=True, autofocus=True,
+                                class='input is-large',
+                                value = project_name
+                                ) }}
+                                {%endif%}
+
+                            </div>
+                            {% for error in form.is_active.errors %}
+                            <p class="help has-background-warning">
+                                {{ error }}
+                            </p>
+                            {% endfor %}
+                        </div>
+
+
+                        <button class="button is-block is-info is-large is-fullwidth">
+                            {% if project %}
+                                Update
+                            {% else %}
+                                Add Project
+                            {% endif %}
+                        </button>
+
+
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+{% endblock %}

@@ -7,6 +7,7 @@ class User(UserMixin):
         self.username = username
         self.password = password
         self.firstname = 'first'
+        self.secondname = 'second'
         self.active = True
         self.is_admin = False
         self.is_coordi = False
@@ -29,6 +30,7 @@ def get_user(user_id):
         password = users[0]['pass']
         user = User(user_id, password) if password else None
         user.firstname = users[0]['first_name']
+        user.secondname = users[0]['second_name']
 
     if user is not None:
         user.is_admin = user.username in current_app.config["ADMIN_USERS"]

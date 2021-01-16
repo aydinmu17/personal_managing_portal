@@ -37,6 +37,8 @@ def define_tasks(user):
         TaskManager.add_task(Task("All Employees", "all_persons"))
         TaskManager.add_task(Task("My profile", "my_profile"))
         TaskManager.add_task(Task("Enroll Project", "enroll_project"))
+        TaskManager.add_task(Task("Projects", "my_projects"))
+
 
     elif user.is_coordi:
         TaskManager.add_task(Task("My projects", "my_projects"))
@@ -55,7 +57,6 @@ def main_page():
         define_tasks(current_user)
 
     return render_template("main.html", tasks=sorted(tasks))
-
 
 @login_required
 def task_add_page():
@@ -308,11 +309,69 @@ def enroll_project(user_id):
 
     return render_template("enroll_project.html", form=form,user=user,active_projects=active_projects)
 
+
 @login_required
 def my_projects_page():
     title= "My Projects"
     cursor = current_app.config["cursor"]
-    cursor.execute("SELECT * FROM ORGANIZATION JOIN PROJECT where pid=%(pid)s",{'pid': current_user.username})
+    if current_user.is_admin:
+        cursor.execute("SELECT * FROM PROJECT")
+    else:
+        cursor.execute("SELECT * FROM ORGANIZATION JOIN PROJECT where pid=%(pid)s",{'pid': current_user.username})
+
     list = cursor.fetchall()
 
     return render_template("list.html", title=title, list=list)
+
+
+def add_project():
+    form = AddProject()
+    cursor = current_app.config["cursor"]
+    mydb = current_app.config["mydb"]
+    cursor.execute("SELECT * FROM PERSON")
+    users = cursor.fetchall()
+    form.manager_id.choices = [(user['pid'],user['first_name']+" "+user['second_name']) for user in users]
+    if form.validate_on_submit():
+        manager_id = request.form["manager_id"]
+        project_name = request.form["project_name"]
+
+        cursor.execute("SELECT MAX(pr_id) FROM project")
+
+        max_pid = cursor.fetchone()['MAX(pr_id)']
+        sql = "INSERT INTO project(pr_id,manager_id,pr_name,is_active) " \
+              "VALUES (%s,%s,%s,%s)"
+        val = (max_pid + 1, manager_id, project_name,1)
+        cursor.execute(sql, val)
+        mydb.commit()
+
+        return redirect(url_for("main_page"))
+
+    cursor.execute("SELECT * FROM project")
+    return render_template("add project.html", form=form)
+
+def update_project_page(project_id):
+    cursor = current_app.config["cursor"]
+    mydb = current_app.config["mydb"]
+    form=AddProject()
+    cursor.execute("SELECT * FROM project where pr_id=%(pr_id)s",{'pr_id': project_id})
+    project=cursor.fetchall()[0]
+    cursor.execute("SELECT * FROM PERSON")
+    users = cursor.fetchall()
+    userlist = [(user['pid'],user['first_name']+" "+user['second_name']) for user in users]
+    manager = get_user(project['manager_id'])
+    form.manager_id.choices = [(manager.username, manager.firstname+" "+manager.secondname)] + userlist
+
+    if  request.method == 'POST':
+        sql = "UPDATE project SET pr_name = %s, manager_id= %s, is_active=%s WHERE pr_id=%s"
+        data = (
+        request.form['project_name'],request.form['manager_id'], request.form['is_active'],project_id)
+        cursor.execute(sql, data)
+        mydb.commit()
+        flash("Yeyyy you updated")
+        return redirect(url_for('my_projects_page'))
+    else:
+        print("here")
+
+
+    return render_template("add project.html",project=project,form=form)
+

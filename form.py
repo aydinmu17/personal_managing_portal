@@ -1,5 +1,5 @@
 from flask_wtf import FlaskForm
-from wtforms import StringField,PasswordField
+from wtforms import StringField,PasswordField,SelectField
 from wtforms.validators import DataRequired, NumberRange, Optional, Email
 from wtforms_components import IntegerField
 
@@ -20,6 +20,13 @@ class SignUpForm(FlaskForm):
 
 class EnrollProject(FlaskForm):
     project_id = StringField("project_id", validators=[DataRequired()])
+
+class AddProject(FlaskForm):
+    project_name = StringField("project_name", validators=[DataRequired()])
+    manager_id = SelectField(u'manager name', choices=[])
+    is_active = SelectField(u'is_active', choices=[(0,"No"),(1,"Yes")])
+
+
 
 
 

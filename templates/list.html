@@ -4,9 +4,23 @@
 
 <h1 class="title">{{title}}</h1>
 {% if list %}
+
     <form action="" method="post" >
 
 <table class="table is-striped is-fullwidth">
+ <tr >
+
+
+        <td style="font-weight: bold">
+                Proje Adı
+        </td>
+           <td style="font-weight: bold">
+                Proje Lideri
+        </td>
+
+
+
+    </tr>
     {% for x in list %}
 
     <tr >
@@ -15,6 +29,21 @@
         <td>
                 {{ x['pr_name']}}
         </td>
+            <td>
+                {{ x['manager_id']}}
+        </td>
+    <td>
+
+
+ {% if current_user.is_admin %}
+            <span>
+             <a  href="{{url_for('update_project_page', project_id=x['pr_id'])}} " class="button is-small is-warning">
+                 <p>Updadte</p>
+             </a>
+    </span>
+    {% endif %}
+    </td>
+
 
 
     </tr>

@@ -44,6 +44,14 @@ def crate_app():
     app.add_url_rule("/enroll/<int:user_id>", view_func=view.enroll_project, methods=["GET", "POST"])
     app.add_url_rule("/myProjects", view_func=view.my_projects_page, methods=["GET", "POST"])
 
+
+    app.add_url_rule("/addProject", view_func=view.add_project, methods=["GET", "POST"]) #proje ekle
+  #  app.add_url_rule("/tasks", view_func=view.tasks_page) # projeler
+    #  app.add_url_rule("/tasks/<int:pr_id>", view_func=view.task_page) #
+    app.add_url_rule("/project/<int:project_id>", view_func=view.update_project_page, methods=["GET", "POST"]) #update project
+
+
+
     TaskManager = Tasks()
 
     app.config["TaskManager"] = TaskManager
