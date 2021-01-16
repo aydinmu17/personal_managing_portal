@@ -35,8 +35,10 @@
                     <tr>
 
 
-                        <td>
-                            {{ x['pr_name'] }}
+                        <td><a href="{{ url_for('project_page',project_id=x['pr_id'])}}">
+                                                        {{ x['pr_name'] }}
+                        </a>
+
                         </td>
                         <td>
                             {{ x['first_name'] }} {{ x['second_name'] }}

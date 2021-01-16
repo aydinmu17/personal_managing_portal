@@ -40,18 +40,19 @@ def crate_app():
     app.add_url_rule("/main", view_func=view.main_page)
     app.add_url_rule("/allpersons", view_func=view.all_persons_page)
     app.add_url_rule("/task-edit/<int:task_key>", view_func=view.edit_task_page_master, methods=["GET", "POST"])
+
+
+    app.add_url_rule("/addProject", view_func=view.add_project, methods=["GET", "POST"])
+    app.add_url_rule("/project/<int:project_id>", view_func=view.project_page, methods=["GET", "POST"])
     app.add_url_rule("/enrollProject", view_func=view.enroll_project_page, methods=["GET", "POST"])
     app.add_url_rule("/enroll/<int:user_id>", view_func=view.enroll_project, methods=["GET", "POST"])
     app.add_url_rule("/myProjects", view_func=view.my_projects_page, methods=["GET", "POST"])
-
-
-    app.add_url_rule("/addProject", view_func=view.add_project, methods=["GET", "POST"]) #proje ekle
-    app.add_url_rule("/project/<int:project_id>", view_func=view.update_project_page, methods=["GET", "POST"]) #update project
-    app.add_url_rule("/project_delete/<int:project_id>", view_func=view.delete_project, methods=["GET", "POST"]) #update project
+    app.add_url_rule("/updateProject/<int:project_id>", view_func=view.update_project_page, methods=["GET", "POST"])
+    app.add_url_rule("/deleteProject/<int:project_id>", view_func=view.delete_project, methods=["GET", "POST"])
 
 
     app.add_url_rule("/addTeam", view_func=view.add_team_page, methods=["GET", "POST"]) #update project
-    app.add_url_rule("/team/<int:team_id>", view_func=view.update_team_page, methods=["GET", "POST"]) #update project
+    app.add_url_rule("/updateTeam/<int:team_id>", view_func=view.update_team_page, methods=["GET", "POST"]) #update project
 
 
 

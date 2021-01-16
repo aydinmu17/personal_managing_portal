@@ -371,6 +371,13 @@ def update_project_page(project_id):
     manager = get_user(project['manager_id'])
     form.manager_id.choices = [(manager.username, manager.firstname+" "+manager.secondname)] + userlist
 
+    if project['is_active']:
+        form.is_active.choices.insert(0,(1,"Yes"))
+        del form.is_active.choices[2]
+    else:
+        form.is_active.choices.insert(0,(0,"No"))
+        del form.is_active.choices[1]
+
     if  request.method == 'POST':
         sql = "UPDATE project SET pr_name = %s, manager_id= %s, is_active=%s WHERE pr_id=%s"
         data = (
@@ -396,6 +403,16 @@ def delete_project(project_id):
     mydb.commit()
     flash(project['pr_name']+" removed")
     return redirect(url_for('my_projects_page'))
+
+def project_page(project_id):
+    cursor=current_app.config["cursor"]
+    cursor.execute("select * from project join person on project.manager_id=person.pid where pr_id=%(pr_id)s", {'pr_id':project_id})
+    project = cursor.fetchall()[0]
+    cursor.execute("select * from team where pr_id=%(pr_id)s", {'pr_id':project_id})
+    teams=cursor.fetchall()
+    cursor.execute("select * from organization join person on organization.pid=person.pid where pr_id=%(pr_id)s", {'pr_id':project_id})
+    people = cursor.fetchall()
+    return render_template("project.html",project=project,teams=teams,people=people)
 
 def add_team_page():
     if not current_user.is_admin:
