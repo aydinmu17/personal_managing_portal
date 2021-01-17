@@ -192,8 +192,7 @@ def login_page():
     form = LoginForm()
 
     cursor = current_app.config["cursor"]
-    cursor.execute("select * from person")
-    adminName= cursor.fetchall()[0]
+
     if form.validate_on_submit():
         username = request.form["username"]
         cursor.execute("SELECT * FROM person WHERE mail=%(username)s or phone=%(username)s ", {'username': username})
@@ -218,7 +217,7 @@ def login_page():
         flash("Invalid credentials.")
 
     if not current_user.is_authenticated:
-        return render_template("login.html", form=form,adminName=adminName)
+        return render_template("login.html", form=form)
     else:
         return redirect(url_for('main_page'))
 
