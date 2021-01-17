@@ -7,3 +7,4 @@ flask_login
 passlib
 datetime
 gunicorn
+email_validator
