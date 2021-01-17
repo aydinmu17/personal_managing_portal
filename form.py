@@ -2,6 +2,19 @@ from flask_wtf import FlaskForm
 from wtforms import StringField,PasswordField,SelectField
 from wtforms.validators import DataRequired, NumberRange, Optional, Email
 from wtforms_components import IntegerField
+from flask import current_app
+import mysql.connector
+
+def checkDBconnection():
+    if current_app.config["mydb"].is_connected():
+        print("bagliyim")
+        return
+    else:
+        while not current_app.config["mydb"].is_connected():
+            print("baglaniyorum")
+            current_app.config["mydb"].ping(reconnect=True,attempts=1, delay=0)
+        checkDBconnection()
+
 
 class LoginForm(FlaskForm):
     username = StringField("Username", validators=[DataRequired()])

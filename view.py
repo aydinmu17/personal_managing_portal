@@ -7,14 +7,6 @@ from passlib.hash import pbkdf2_sha256 as hasher
 from form import *
 import mysql.connector
 
-
-def checkDBconnection():
-    if current_app.config["mydb"].is_connected():
-        return
-    else:
-        current_app.config["mydb"].ping(reconnect=True,attempts=1,delay=0)
-
-
 @login_required
 def tasks_page():
     checkDBconnection()
@@ -235,6 +227,7 @@ def my_profile_page():
     checkDBconnection()
     user_id = current_user.username
     return redirect(url_for('profile_page', user_id=user_id))
+
 
 @login_required
 def profile_page(user_id):

@@ -1,5 +1,6 @@
 from flask import current_app
 from flask_login import UserMixin
+from form import checkDBconnection
 
 
 class User(UserMixin):
@@ -22,6 +23,7 @@ class User(UserMixin):
 
 
 def get_user(user_id):
+    checkDBconnection()
     cursor = current_app.config["cursor"]
     cursor.execute("SELECT * FROM person WHERE pid=%(pid)s", {'pid': user_id})
     users = cursor.fetchall()

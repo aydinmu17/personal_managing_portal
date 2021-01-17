@@ -8,13 +8,13 @@ from users import get_user
 import mysql.connector
 
 login_manager = LoginManager()
+app = Flask(__name__)
 # mydb = mysql.connector.connect(
 #     host= "localhost",
 #     user="root",
 #     password="",
 #     database="emp"
 # )
-app = Flask(__name__)
 
 app.config["host"]="us-cdbr-east-03.cleardb.com"
 app.config["user"]="b6e7b42e2aae67"
@@ -28,6 +28,8 @@ mydb = mysql.connector.connect(
     database=app.config["database"])
 
 cursor = mydb.cursor(dictionary=True)
+
+
 app.config["cursor"] = cursor
 app.config["mydb"] = mydb
 
