@@ -27,6 +27,7 @@ cursor = mydb.cursor(dictionary=True)
 def load_user(user_id):
     return get_user(user_id)
 
+app = Flask(__name__)
 
 def crate_app(app):
     #Routes
@@ -79,7 +80,6 @@ def crate_app(app):
 
 
 if __name__ == "__main__":
-    app = Flask(__name__)
     login_status = False
     app = crate_app(app)
     app.run()
