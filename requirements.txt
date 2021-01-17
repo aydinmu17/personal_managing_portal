@@ -2,6 +2,7 @@ Flask
 flask_wtf
 wtforms
 wtforms_components
+wtforms.validators
 flask_login
 passlib
 datetime
