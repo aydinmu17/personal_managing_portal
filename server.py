@@ -82,4 +82,4 @@ def crate_app():
 if __name__ == "__main__":
     login_status = False
     app = crate_app()
-    app.run(host="0.0.0.0", port=8080)
+    app.run()
