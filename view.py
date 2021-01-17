@@ -53,6 +53,8 @@ def define_tasks(user):
 
 @login_required
 def main_page():
+    mydb=current_app.config['mydb']
+    mydb.reconnect(attempts=1, delay=0)
     TaskManager = current_app.config["TaskManager"]
     tasks = TaskManager.get_tasks()
     if not tasks:
