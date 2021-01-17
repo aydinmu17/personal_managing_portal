@@ -1,0 +1,66 @@
+{% extends "layout2.html" %}
+{% block title %}{{ purpose }}{% endblock %}
+{% block content %}
+
+<h1 class="title">{{title}}</h1>
+{% if persons %}
+    <form action="" method="post" >
+
+<table class="table is-striped is-fullwidth">
+    {% for person in persons %}
+
+    <tr>
+        <td>
+                            <label class="radio">
+                                <input type="checkbox" name="user_id" value="{{ person['pid'] }}">
+                            </label>
+
+        </td>
+        <td>
+            <p >
+                {{ person['pid'] }}
+            </p>
+
+        </td>
+        <td>
+            <p >
+                {{ person['first_name'] }}
+            </p>
+
+        </td>
+        <td>
+            <p>
+                {{ person['second_name'] }}
+            </p>
+
+        </td>
+        <td>
+                {{ person['phone'] }}
+        </td>
+        <td>
+            <a href="mailto:{{person['mail']}} ">
+                {{ person['mail'] }}
+            </a>
+
+        </td>
+     </a>
+    </tr>
+    {% endfor %}
+</table>
+    {% if teams %}
+        <select name="team">
+        {% for team in teams %}
+            <option value="{{team['t_id']}}"> {{team['team_name']}}</option>
+        {% endfor %}
+        </select>
+{% else %}
+        There is no team
+    {% endif %}
+        <button class="button is-info" >
+        Assign
+        </button>
+
+    </form>
+{% endif %}
+
+{% endblock %}
