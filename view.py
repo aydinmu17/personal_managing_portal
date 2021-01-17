@@ -5,16 +5,26 @@ from flask_login import login_user, login_required, current_user, logout_user
 from users import get_user, User
 from passlib.hash import pbkdf2_sha256 as hasher
 from form import *
+import mysql.connector
+
+
+def checkDBconnection():
+    if current_app.config["mydb"].is_connected():
+        return
+    else:
+        current_app.config["mydb"].ping(reconnect=True,attempts=1,delay=0)
 
 
 @login_required
 def tasks_page():
+    checkDBconnection()
     TaskManager = current_app.config["TaskManager"]
     tasks = TaskManager.get_tasks()
     return render_template("tasks.html", tasks=sorted(tasks))
 
 @login_required
 def task_page(url):
+    checkDBconnection()
     TaskManager = current_app.config["TaskManager"]
     tasks = TaskManager.get_tasks()
     task = None
@@ -31,6 +41,7 @@ def task_page(url):
     # return render_template("task.html", task=task)
 
 def define_tasks(user):
+    checkDBconnection()
     TaskManager = current_app.config["TaskManager"]
     if user.is_admin:
         TaskManager.add_task(Task("All Employees", "all_persons"))
@@ -53,6 +64,7 @@ def define_tasks(user):
 
 @login_required
 def main_page():
+    checkDBconnection()
     mydb=current_app.config['mydb']
     mydb.reconnect(attempts=1, delay=0)
     TaskManager = current_app.config["TaskManager"]
@@ -64,6 +76,7 @@ def main_page():
 
 @login_required
 def task_add_page():
+    checkDBconnection()
     if not (current_user.is_admin or current_user.is_teamleader):
         abort(401)
     if request.method == "GET":
@@ -80,6 +93,7 @@ def task_add_page():
 
 @login_required
 def delete_task_page():
+    checkDBconnection()
     if not current_user.is_admin:
         abort(403)
     TaskManager = current_app.config["TaskManager"]
@@ -92,6 +106,7 @@ def delete_task_page():
 
 @login_required
 def edit_task_page():
+    checkDBconnection()
     TaskManager = current_app.config["TaskManager"]
     if request.method == "GET":
         tasks = TaskManager.get_tasks()
@@ -104,6 +119,7 @@ def edit_task_page():
 
 @login_required
 def edit_task_page_master(task_key):
+    checkDBconnection()
     if request.method == "GET":
         TaskManager = current_app.config["TaskManager"]
         task = TaskManager.get_task(task_key)
@@ -120,6 +136,7 @@ def edit_task_page_master(task_key):
 
 @login_required
 def all_persons_page():
+    checkDBconnection()
     if not (current_user.is_admin or current_user.is_teamleader):
         abort(401)
     cursor = current_app.config["cursor"]
@@ -130,6 +147,7 @@ def all_persons_page():
 
 
 def signup_page():
+    checkDBconnection()
     form = SignUpForm()
     if form.validate_on_submit():
         cursor = current_app.config["cursor"]
@@ -169,10 +187,10 @@ def signup_page():
 
 
 def login_page():
-    # Here we use a class of some kind to represent and validate our
-    # client-side form data. For example, WTForms is a library that will
-    # handle this for us, and we use a custom LoginForm to validate.
+
+    checkDBconnection()
     form = LoginForm()
+
     cursor = current_app.config["cursor"]
     cursor.execute("select * from person")
     adminName= cursor.fetchall()[0]
@@ -206,6 +224,7 @@ def login_page():
 
 @login_required
 def logout_page():
+    checkDBconnection()
     logout_user()
     TaskManager = current_app.config["TaskManager"]
     TaskManager.clear_tasks()
@@ -214,11 +233,13 @@ def logout_page():
 
 @login_required
 def my_profile_page():
+    checkDBconnection()
     user_id = current_user.username
     return redirect(url_for('profile_page', user_id=user_id))
 
 @login_required
 def profile_page(user_id):
+    checkDBconnection()
     if not current_user.username == user_id:
         if not current_user.is_admin:
             abort(403)
@@ -230,6 +251,7 @@ def profile_page(user_id):
 
 @login_required
 def update_profile_page(user_id):
+    checkDBconnection()
     if not current_user.username == user_id:
         if not current_user.is_admin:
             abort(403)
@@ -271,6 +293,7 @@ def update_profile_page(user_id):
 
 @login_required
 def enroll_project_page():
+    checkDBconnection()
     user_id = current_user.username
     if current_user.is_admin:
         if request.method == "GET":
@@ -287,6 +310,7 @@ def enroll_project_page():
 
 @login_required
 def enroll_project(user_id):
+    checkDBconnection()
     if not current_user.username == user_id:
         if not current_user.is_admin:
             if not current_user.is_teamleader:
@@ -320,6 +344,7 @@ def enroll_project(user_id):
 
 @login_required
 def my_projects_page():
+    checkDBconnection()
     title= "My Projects"
     cursor = current_app.config["cursor"]
     if current_user.is_admin:
@@ -336,6 +361,7 @@ def my_projects_page():
 
 @login_required
 def add_project():
+    checkDBconnection()
     if not current_user.is_admin:
         abort(403)
     form = AddProject()
@@ -366,6 +392,7 @@ def add_project():
 
 @login_required
 def update_project_page(project_id):
+    checkDBconnection()
     if not (current_user.is_admin or current_user.is_projectmanager):
         abort(403)
 
@@ -401,6 +428,7 @@ def update_project_page(project_id):
 
 @login_required
 def delete_project(project_id):
+    checkDBconnection()
     if not current_user.is_admin:
         abort(403)
     cursor= current_app.config["cursor"]
@@ -414,6 +442,7 @@ def delete_project(project_id):
     return redirect(url_for('my_projects_page'))
 
 def project_page(project_id):
+    checkDBconnection()
     cursor=current_app.config["cursor"]
     cursor.execute("select * from project join person on project.manager_id=person.pid where pr_id=%(pr_id)s", {'pr_id':project_id})
     project = cursor.fetchall()[0]
@@ -427,6 +456,7 @@ def project_page(project_id):
     return render_template("project.html",project=project,teams=teams,people_with_team=people_with_team,people_without_team=people_without_team)
 
 def add_team_page():
+    checkDBconnection()
     if not current_user.is_admin:
         abort(403)
 
@@ -462,6 +492,7 @@ def add_team_page():
 
 @login_required
 def update_team_page(team_id):
+    checkDBconnection()
     if not current_user.is_admin:
         if not current_user.is_projectmanager:
             if not current_user.is_teamleader:
@@ -499,6 +530,7 @@ def update_team_page(team_id):
 
 
 def assign_to_team_page(project_id,purpose):
+    checkDBconnection()
     cursor=current_app.config["cursor"]
     mydb=current_app.config["mydb"]
     if purpose == "assign":

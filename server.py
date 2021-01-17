@@ -1,4 +1,4 @@
-from flask import Flask, render_template, abort, session,redirect, url_for
+from flask import Flask, render_template, abort, session,redirect, url_for,current_app
 from datetime import datetime
 import view
 from taskmanager import Tasks
@@ -14,20 +14,28 @@ login_manager = LoginManager()
 #     password="",
 #     database="emp"
 # )
+app = Flask(__name__)
+
+app.config["host"]="us-cdbr-east-03.cleardb.com"
+app.config["user"]="b6e7b42e2aae67"
+app.config["password"]="cb61c95e"
+app.config["database"]="heroku_b87f3f2de9b268f"
+
 mydb = mysql.connector.connect(
-    host= "us-cdbr-east-03.cleardb.com",
-    user="b6e7b42e2aae67",
-    password="cb61c95e",
-    database="heroku_b87f3f2de9b268f"
-)
+    host= app.config["host"],
+    user=app.config["user"],
+    password=app.config["password"],
+    database=app.config["database"])
+
 cursor = mydb.cursor(dictionary=True)
+app.config["cursor"] = cursor
+app.config["mydb"] = mydb
 
 
 @login_manager.user_loader
 def load_user(user_id):
     return get_user(user_id)
 
-app = Flask(__name__)
 app.add_url_rule("/login", view_func=view.login_page, methods=["GET", "POST"])
 app.add_url_rule("/signup", view_func=view.signup_page, methods=["GET", "POST"])
 app.add_url_rule("/logout", view_func=view.logout_page, methods=["GET", "POST"])
@@ -61,8 +69,7 @@ app.add_url_rule("/assigntoTeamfromProject/<int:project_id>/<string:purpose>", v
 TaskManager = Tasks()
 
 app.config["TaskManager"] = TaskManager
-app.config["cursor"] = cursor
-app.config["mydb"] = mydb
+
 
 login_manager.init_app(app)
 login_manager.login_view = "login_page"
