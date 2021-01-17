@@ -8,18 +8,18 @@ from users import get_user
 import mysql.connector
 
 login_manager = LoginManager()
-mydb = mysql.connector.connect(
-    host= "localhost",
-    user="root",
-    password="",
-    database="emp"
-)
 # mydb = mysql.connector.connect(
-#     host= "us-cdbr-east-03.cleardb.com",
-#     user="b6e7b42e2aae67",
-#     password="cb61c95e",
-#     database="heroku_b87f3f2de9b268f"
+#     host= "localhost",
+#     user="root",
+#     password="",
+#     database="emp"
 # )
+mydb = mysql.connector.connect(
+    host= "us-cdbr-east-03.cleardb.com",
+    user="b6e7b42e2aae67",
+    password="cb61c95e",
+    database="heroku_b87f3f2de9b268f"
+)
 cursor = mydb.cursor(dictionary=True)
 
 
