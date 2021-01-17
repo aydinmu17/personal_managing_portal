@@ -36,7 +36,12 @@ def get_user(user_id):
         user.secondname = users[0]['second_name']
 
     if user is not None:
-        user.is_admin = user.username in current_app.config["ADMIN_USERS"]
+        cursor.execute("SELECT * FROM person WHERE pid=%(pid)s", {'pid': user_id})
+        dbuser=cursor.fetchall()[0]
+        if not len(dbuser) <= 0:
+            if dbuser['mail']=="admin@admin.com":
+                user.is_admin = True
+
         if not user.is_admin:
             cursor.execute("SELECT * FROM TEAM WHERE leader_id=%(pid)s", {'pid': user_id})
             if not len(cursor.fetchall()) <= 0:

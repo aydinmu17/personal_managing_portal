@@ -65,10 +65,11 @@
 
                     </td>
                 </table>
-                {% if people_without_team %}
+                {% if people_without_team or people_with_team %}
                     {% if current_user.is_admin or current_user.username == project['manager_id'] %}
                     <div class="column is-10 ">
                         <div class="box">
+                        {% if people_without_team %}
 
                             <div class="column is-full">
                                 <h2 class="title"> People without Team </h2>
@@ -118,8 +119,11 @@
                                 </table>
 
                             </div>
+                        {% endif %}
+                            {% if people_with_team %}
+
                             <div class="column is-full">
-                                <h2 class="title"> People without Team </h2>
+                                <h2 class="title"> People with Team </h2>
                             <a class="button is-warning" href="{{ url_for('assign_to_team_page', project_id=project['pr_id'] , purpose="edit")}}">Edit teams</a>
                                 <table class="table is-striped is-fullwidth">
                                     <tr>
@@ -173,6 +177,8 @@
                                 </table>
 
                             </div>
+                                                        {% endif %}
+
                         </div>
                     </div>
                     {% endif %}
