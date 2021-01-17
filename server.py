@@ -31,12 +31,6 @@ app = Flask(__name__)
 
 def crate_app(app):
     #Routes
-
-    return app
-
-
-if __name__ == "__main__":
-    login_status = False
     app.add_url_rule("/login", view_func=view.login_page, methods=["GET", "POST"])
     app.add_url_rule("/signup", view_func=view.signup_page, methods=["GET", "POST"])
     app.add_url_rule("/logout", view_func=view.logout_page, methods=["GET", "POST"])
@@ -67,13 +61,6 @@ if __name__ == "__main__":
     app.add_url_rule("/updateTeam/<int:team_id>", view_func=view.update_team_page, methods=["GET", "POST"]) #update project
     app.add_url_rule("/assigntoTeamfromProject/<int:project_id>/<string:purpose>", view_func=view.assign_to_team_page, methods=["GET", "POST"]) #update project
 
-
-
-    @app.route('/')
-    def slash:
-        view.login_page()
-
-
     TaskManager = Tasks()
 
     app.config["TaskManager"] = TaskManager
@@ -85,4 +72,8 @@ if __name__ == "__main__":
 
     app.config.from_object("settings")
 
+
+if __name__ == "__main__":
+    login_status = False
+    crate_app(app)
     app.run()
