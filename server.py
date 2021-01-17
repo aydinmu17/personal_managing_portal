@@ -69,7 +69,9 @@ if __name__ == "__main__":
 
 
 
-
+    @app.route('/')
+    def slash:
+        view.login_page()
 
 
     TaskManager = Tasks()
