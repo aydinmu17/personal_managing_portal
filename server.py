@@ -28,8 +28,7 @@ def load_user(user_id):
     return get_user(user_id)
 
 
-def crate_app():
-    app = Flask(__name__)
+def crate_app(app):
     #Routes
     app.add_url_rule("/login", view_func=view.login_page, methods=["GET", "POST"])
     app.add_url_rule("/signup", view_func=view.signup_page, methods=["GET", "POST"])
@@ -80,6 +79,7 @@ def crate_app():
 
 
 if __name__ == "__main__":
+    app = Flask(__name__)
     login_status = False
-    app = crate_app()
+    app = crate_app(app)
     app.run()
