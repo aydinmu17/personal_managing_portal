@@ -31,6 +31,12 @@ app = Flask(__name__)
 
 def crate_app(app):
     #Routes
+
+    return app
+
+
+if __name__ == "__main__":
+    login_status = False
     app.add_url_rule("/login", view_func=view.login_page, methods=["GET", "POST"])
     app.add_url_rule("/signup", view_func=view.signup_page, methods=["GET", "POST"])
     app.add_url_rule("/logout", view_func=view.logout_page, methods=["GET", "POST"])
@@ -76,10 +82,5 @@ def crate_app(app):
     login_manager.login_view = "login_page"
 
     app.config.from_object("settings")
-    return app
 
-
-if __name__ == "__main__":
-    login_status = False
-    app = crate_app(app)
     app.run()
