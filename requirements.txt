@@ -1,0 +1,7 @@
+Flask
+flask_wtf
+wtforms
+wtforms_components
+flask_login
+passlib
+datetime
