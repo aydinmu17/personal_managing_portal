@@ -14,6 +14,12 @@ mydb = mysql.connector.connect(
     password="",
     database="emp"
 )
+# mydb = mysql.connector.connect(
+#     host= "us-cdbr-east-03.cleardb.com",
+#     user="b6e7b42e2aae67",
+#     password="cb61c95e",
+#     database="heroku_b87f3f2de9b268f"
+# )
 cursor = mydb.cursor(dictionary=True)
 
 
@@ -53,6 +59,7 @@ def crate_app():
 
     app.add_url_rule("/addTeam", view_func=view.add_team_page, methods=["GET", "POST"]) #update project
     app.add_url_rule("/updateTeam/<int:team_id>", view_func=view.update_team_page, methods=["GET", "POST"]) #update project
+    app.add_url_rule("/assigntoTeamfromProject/<int:project_id>/<string:purpose>", view_func=view.assign_to_team_page, methods=["GET", "POST"]) #update project
 
 
 

@@ -147,8 +147,10 @@ def signup_page():
                 return redirect(url_for('signup_page'))
 
             cursor.execute("SELECT MAX(pid) FROM person")
-
             max_pid = cursor.fetchone()['MAX(pid)']
+            if max_pid is None:
+                max_pid=0
+
             sql = "INSERT INTO person(pid,pass,first_name,second_name,phone,mail,score) " \
                   "VALUES (%s,%s,%s,%s,%s,%s,%s)"
             val = (max_pid + 1, password, request.form["firstname"],
@@ -344,10 +346,13 @@ def add_project():
 
         cursor.execute("SELECT MAX(pr_id) FROM project")
 
-        max_pid = cursor.fetchone()['MAX(pr_id)']
+        max_pr_id = cursor.fetchone()['MAX(pr_id)']
+        if max_pr_id is None:
+            max_pr_id = 0
+
         sql = "INSERT INTO project(pr_id,manager_id,pr_name,is_active) " \
               "VALUES (%s,%s,%s,%s)"
-        val = (max_pid + 1, manager_id, project_name,1)
+        val = (max_pr_id + 1, manager_id, project_name,1)
         cursor.execute(sql, val)
         mydb.commit()
         flash(project_name + " added")
@@ -410,9 +415,12 @@ def project_page(project_id):
     project = cursor.fetchall()[0]
     cursor.execute("select * from team where pr_id=%(pr_id)s", {'pr_id':project_id})
     teams=cursor.fetchall()
-    cursor.execute("select * from organization join person on organization.pid=person.pid where pr_id=%(pr_id)s", {'pr_id':project_id})
-    people = cursor.fetchall()
-    return render_template("project.html",project=project,teams=teams,people=people)
+    cursor.execute("select * from organization join person on organization.pid=person.pid where pr_id=%(pr_id)s and t_id is NULL", {'pr_id': project_id})
+    people_without_team = cursor.fetchall()
+    cursor.execute("select * from (organization join person on organization.pid=person.pid join team on team.t_id=organization.t_id ) where organization.pr_id=%(pr_id)s order by organization.t_id", {'pr_id':project_id})
+    people_with_team = cursor.fetchall()
+
+    return render_template("project.html",project=project,teams=teams,people_with_team=people_with_team,people_without_team=people_without_team)
 
 def add_team_page():
     if not current_user.is_admin:
@@ -435,10 +443,12 @@ def add_team_page():
 
         cursor.execute("SELECT MAX(t_id) FROM team")
 
-        max_pid = cursor.fetchone()['MAX(t_id)']
+        max_t_id = cursor.fetchone()['MAX(t_id)']
+        if max_t_id is None:
+            max_t_id = 0
         sql = "INSERT INTO team(t_id,leader_id,pr_id,team_name) " \
               "VALUES (%s,%s,%s,%s)"
-        val = (max_pid + 1, leader_id, project_id, team_name)
+        val = (max_t_id + 1, leader_id, project_id, team_name)
         cursor.execute(sql, val)
         mydb.commit()
         flash(team_name + " added")
@@ -482,3 +492,47 @@ def update_team_page(team_id):
 
 
     return render_template("add_event.html",team=team,form=form)
+
+
+def assign_to_team_page(project_id,purpose):
+    cursor=current_app.config["cursor"]
+    mydb=current_app.config["mydb"]
+    if purpose == "assign":
+        cursor.execute(
+            "select * from organization join person on organization.pid=person.pid where pr_id=%(pr_id)s and t_id is NULL",
+            {'pr_id': project_id})
+        people = cursor.fetchall()
+    else:
+        cursor.execute(
+            "select * from organization join person on organization.pid=person.pid where pr_id=%(pr_id)s and t_id is not NULL",
+            {'pr_id': project_id})
+        people = cursor.fetchall()
+    cursor.execute("select * from team where pr_id=%(pr_id)s",{'pr_id':project_id})
+    teams=cursor.fetchall()
+    if request.method == 'POST':
+        user_ids=request.form.getlist("user_id")
+        team_id=request.form["team"]
+        if purpose == "assign":
+            for user_id in user_ids:
+                sql = "UPDATE organization SET t_id=%s WHERE pid=%s and pr_id=%s"
+                data = (team_id,user_id,project_id)
+                cursor.execute(sql,data)
+                mydb.commit()
+
+                sql = "INSERT INTO team_with_members(pid,t_id) " \
+                      "VALUES (%s,%s)"
+                val = (user_id,team_id)
+                cursor.execute(sql, val)
+                mydb.commit()
+            return redirect(url_for('project_page',project_id=project_id))
+        else:
+            for user_id in user_ids:
+                sql = "UPDATE organization SET t_id = NULL WHERE pid=%s and pr_id=%s"
+                data = (user_id, project_id)
+                cursor.execute(sql, data)
+                mydb.commit()
+
+            return redirect(url_for('project_page', project_id=project_id))
+
+
+    return render_template("assign_to_team.html", persons=people,teams=teams,purpose=purpose)

@@ -65,13 +65,14 @@
 
                     </td>
                 </table>
-                {% if people %}
+                {% if people_without_team %}
                     {% if current_user.is_admin or current_user.username == project['manager_id'] %}
-
                     <div class="column is-10 ">
                         <div class="box">
 
                             <div class="column is-full">
+                                <h2 class="title"> People without Team </h2>
+                            <a class="button is-success" href="{{ url_for('assign_to_team_page', project_id=project['pr_id'],purpose="assign") }}">Assign to a team</a>
                                 <table class="table is-striped is-fullwidth">
                                     <tr>
 
@@ -91,8 +92,7 @@
 
 
                                     </tr>
-                                    {% for x in people %}
-
+                                    {% for x in people_without_team %}
                                             <tr class="clickable" data-href="{{url_for('profile_page', user_id=x['pid'])}}">
 
 
@@ -115,14 +115,69 @@
                                         </tr>
 
                                     {% endfor %}
+                                </table>
 
+                            </div>
+                            <div class="column is-full">
+                                <h2 class="title"> People without Team </h2>
+                            <a class="button is-warning" href="{{ url_for('assign_to_team_page', project_id=project['pr_id'] , purpose="edit")}}">Edit teams</a>
+                                <table class="table is-striped is-fullwidth">
+                                    <tr>
+
+
+                                        <td style="font-weight: bold">
+                                            First Name
+                                        </td>
+                                        <td style="font-weight: bold">
+                                            Second Name
+                                        </td>
+                                        <td style="font-weight: bold">
+                                            Phone
+                                        </td>
+                                        <td style="font-weight: bold">
+                                            Mail
+                                        </td>
+                                        <td style="font-weight: bold">
+                                            Team
+                                        </td>
+
+
+                                    </tr>
+                                    {% for x in people_with_team %}
+                                            <tr class="clickable" data-href="{{url_for('profile_page', user_id=x['pid'])}}">
+
+
+                                            <td>
+                                                {{ x['first_name'] }}
+
+
+                                            </td>
+                                            <td>
+                                                {{ x['second_name'] }}
+                                            </td>
+                                            <td>
+                                                {{ x['phone'] }}
+                                            </td>
+                                            <td>
+                                                {{ x['mail'] }}
+
+                                            </td>
+                                                <td>
+                                                {{ x['team_name'] }}
+
+                                            </td>
+
+                                        </tr>
+
+                                    {% endfor %}
+                                </table>
 
                             </div>
                         </div>
                     </div>
-                                    {% endif %}
+                    {% endif %}
                 {% endif %}
-                </table>
+
 
             </div>
         </div>
