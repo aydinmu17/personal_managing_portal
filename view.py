@@ -171,9 +171,11 @@ def login_page():
     # client-side form data. For example, WTForms is a library that will
     # handle this for us, and we use a custom LoginForm to validate.
     form = LoginForm()
+    cursor = current_app.config["cursor"]
+    cursor.execute("select * from person")
+    adminName= cursor.fetchall()[0]
     if form.validate_on_submit():
         username = request.form["username"]
-        cursor = current_app.config["cursor"]
         cursor.execute("SELECT * FROM person WHERE mail=%(username)s or phone=%(username)s ", {'username': username})
         indexeduser = cursor.fetchall()
         user = None
@@ -196,7 +198,7 @@ def login_page():
         flash("Invalid credentials.")
 
     if not current_user.is_authenticated:
-        return render_template("login.html", form=form)
+        return render_template("login.html", form=form,adminName=adminName)
     else:
         return redirect(url_for('main_page'))
 
