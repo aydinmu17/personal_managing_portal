@@ -7,6 +7,15 @@ from passlib.hash import pbkdf2_sha256 as hasher
 from form import *
 import mysql.connector
 
+def findManagerOfProject(project_id,projects):
+    checkDBconnection()
+
+    for project1 in projects:
+        print(project1['pr_name'], project1['pr_id'], project_id)
+        if int(project1['pr_id']) == int(project_id):
+            print("ananananan")
+            return int(project1['manager_id'])
+
 @login_required
 def tasks_page():
     checkDBconnection()
@@ -41,18 +50,27 @@ def define_tasks(user):
         TaskManager.add_task(Task("Enroll Project", "enroll_project"))
         TaskManager.add_task(Task("Projects", "my_projects"))
         TaskManager.add_task(Task("Add team", "add_team"))
+        TaskManager.add_task(Task("Teams", "my_teams"))
 
 
     elif user.is_teamleader:
         TaskManager.add_task(Task("My projects", "my_projects"))
+        TaskManager.add_task(Task("My Team", "my_teams"))
+        TaskManager.add_task(Task("Enroll Project", "enroll_project"))
+        TaskManager.add_task(Task("My profile", "my_profile"))
+
+    elif user.is_projectmanager:
+        TaskManager.add_task(Task("My projects", "my_projects"))
         TaskManager.add_task(Task("My Team", "my_team"))
         TaskManager.add_task(Task("Enroll Project", "enroll_project"))
-
         TaskManager.add_task(Task("My profile", "my_profile"))
     else:
         TaskManager.add_task(Task("Enroll Project", "enroll_project"))
         TaskManager.add_task(Task("My profile", "my_profile"))
+        TaskManager.add_task(Task("My Team", "my_teams"))
         TaskManager.add_task(Task("My projects", "my_projects"))
+
+
 
 @login_required
 def main_page():
@@ -378,7 +396,7 @@ def add_project():
         cursor.execute(sql, val)
         mydb.commit()
         flash(project_name + " added")
-        return redirect(url_for("my_projects_page"))
+        return redirect(url_for("add_team_page"))
 
     return render_template("add project.html", form=form)
 
@@ -450,7 +468,8 @@ def project_page(project_id):
 def add_team_page():
     checkDBconnection()
     if not current_user.is_admin:
-        abort(403)
+        if not current_user.is_projectmanager:
+            abort(403)
 
     form = AddTeam()
     cursor = current_app.config["cursor"]
@@ -459,13 +478,21 @@ def add_team_page():
     users = cursor.fetchall()
     form.leader_id.choices = [(user['pid'], user['first_name'] + " " + user['second_name']) for user in users]
 
-    cursor.execute("SELECT * FROM project")
+    cursor.execute("SELECT * FROM project order by pr_id desc")
     projects = cursor.fetchall()
     form.project_id.choices = [(project['pr_id'], project['pr_name']) for project in projects]
     if request.method == 'POST':
         leader_id = request.form["leader_id"]
         team_name = request.form["team_name"]
         project_id = request.form["project_id"]
+
+        manager_id_of_project = findManagerOfProject(project_id,projects)
+
+        print(manager_id_of_project , current_user.username)
+        if not current_user.is_admin:
+            if manager_id_of_project != current_user.username:
+                flash("Permission denied")
+                return redirect(url_for('main_page'))
 
         cursor.execute("SELECT MAX(t_id) FROM team")
 
@@ -477,6 +504,18 @@ def add_team_page():
         val = (max_t_id + 1, leader_id, project_id, team_name)
         cursor.execute(sql, val)
         mydb.commit()
+        sql = "INSERT INTO organization(pid,t_id,pr_id) " \
+                  "VALUES (%s,%s,%s)"
+        val = (leader_id,max_t_id+1,project_id)
+        cursor.execute(sql,val)
+        mydb.commit()
+
+        sql = "INSERT INTO team_with_members(pid,t_id) " \
+              "VALUES (%s,%s)"
+        val = (leader_id, max_t_id+1)
+        cursor.execute(sql, val)
+        mydb.commit()
+
         flash(team_name + " added")
         return redirect(url_for("main_page"))
     return render_template("add_event.html",form=form)
@@ -520,7 +559,6 @@ def update_team_page(team_id):
 
     return render_template("add_event.html",team=team,form=form)
 
-
 def assign_to_team_page(project_id,purpose):
     checkDBconnection()
     cursor=current_app.config["cursor"]
@@ -555,8 +593,14 @@ def assign_to_team_page(project_id,purpose):
             return redirect(url_for('project_page',project_id=project_id))
         else:
             for user_id in user_ids:
+                cursor.execute("select * from organization where pid=%(pid)s and pr_id=%(pr_id)s ",{'pid':user_id,'pr_id':project_id})
+                old_team=cursor.fetchall()[0]['t_id']
                 sql = "UPDATE organization SET t_id = NULL WHERE pid=%s and pr_id=%s"
                 data = (user_id, project_id)
+                cursor.execute(sql, data)
+                mydb.commit()
+                sql = "delete from team_with_members WHERE pid=%s and t_id=%s"
+                data = (user_id, old_team)
                 cursor.execute(sql, data)
                 mydb.commit()
 
@@ -564,3 +608,47 @@ def assign_to_team_page(project_id,purpose):
 
 
     return render_template("assign_to_team.html", persons=people,teams=teams,purpose=purpose)
+
+def my_teams_page():
+    checkDBconnection()
+    title = "My Teams"
+    cursor = current_app.config["cursor"]
+    list=[]
+    if current_user.is_admin:
+        cursor.execute(
+            "SELECT team.t_id,leader_id,manager_id,team.pr_id,first_name , second_name, team_name,pr_name "
+            "FROM TEAM "
+            "inner JOIN Person on person.pid = team.leader_id "
+            "inner join project on team.pr_id = project.pr_id")
+        list = cursor.fetchall()
+    else:
+        cursor.execute("SELECT team.t_id,leader_id,manager_id,team.pr_id,first_name , second_name, team_name,pr_name "
+                       "FROM team_with_members "
+                       "inner join team on team_with_members.t_id = team.t_id "
+                       "inner JOIN Person on person.pid = team.leader_id "
+                       "inner join project on project.pr_id = team.pr_id "
+                       "where team_with_members.pid=%(pid)s",{'pid':current_user.username})
+        list = cursor.fetchall()
+        if current_user.is_projectmanager:
+            cursor.execute("select * from project where manager_id = %(manager_id)s ",{'manager_id': current_user.username})
+            projects = cursor.fetchall()
+            teamsFromproject=[]
+            for project in projects:
+                project_id = project['pr_id']
+                cursor.execute(
+                    "select team.t_id,leader_id,manager_id,team.pr_id,first_name,second_name,team_name,pr_name from organization "
+                    "inner join team on team.t_id = organization.t_id "
+                    "inner join project on project.pr_id = team.pr_id "
+                    "inner join person on person.pid = team.leader_id "
+                    "where project.pr_id=%(pr_id)s", {'pr_id': project_id})
+                teamsFromproject = teamsFromproject + cursor.fetchall()
+            for team in teamsFromproject:
+                if not team in list:
+                    list.append(team)
+            print("is pm")
+            print(list)
+
+
+    print(list)
+
+    return render_template("list2.html", title=title, list=list)

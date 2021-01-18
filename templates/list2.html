@@ -1,0 +1,88 @@
+{% extends "layout2.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block content %}
+
+    <h1 class="title">{{ title }}</h1>
+    {% if current_user.is_admin or current_user.is_projectmanager %}
+        <span>
+             <a href="{{ url_for('add_team_page') }} " class="button is-medium is-success">
+                 <p>Add new Team</p>
+             </a>
+    </span>
+    {% endif %}
+    {% if list %}
+
+        <form action="" method="post">
+
+            <table class="table is-striped is-fullwidth">
+                <tr>
+
+
+                    <td style="font-weight: bold">
+                        Team Name
+                    </td>
+                    <td style="font-weight: bold">
+                        Team Leader
+                    </td>
+                    <td style="font-weight: bold">
+                        Project
+                    </td>
+
+
+                </tr>
+                {% for x in list %}
+
+                    <tr>
+
+
+                        <td><a href="">
+                            {{ x['team_name'] }}
+                        </a>
+
+                        </td>
+                        <td>
+                            <a href="{{ url_for('profile_page', user_id=x['leader_id']) }}">
+                                {{ x['first_name'] }} {{ x['second_name'] }}
+                            </a>
+                        </td>
+                        <td>
+                            {{ x['pr_name'] }}
+
+                        </td>
+                        <td>
+
+
+                            {% if current_user.is_admin or current_user.username == x['manager_id'] %}
+                                <span>
+                                    <a href="{{ url_for('update_team_page', team_id=x['t_id']) }} "
+                                       class="button is-small is-warning">
+                                    <p>Update</p>
+                                    </a>
+                                 </span>
+                                {% if current_user.is_admin %}
+                                    <span>
+                                    <a href="{{ url_for('delete_project', project_id=x['pr_id']) }} "
+                                       class="button is-small is-danger">
+                                    <p>Delete Project dont touch this button for now </p>
+                                    </a>
+                                 </span>
+                                {% endif %}
+
+                            {% endif %}
+                        </td>
+
+
+                    </tr>
+
+                {% endfor %}
+            </table>
+            {% if title == "Select Team" %}
+                <button class="button is-info">
+                    Next
+                </button>
+
+            {% endif %}
+        </form>
+    {% endif %}
+
+{% endblock %}
