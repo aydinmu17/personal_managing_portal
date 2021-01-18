@@ -18,6 +18,11 @@
 
                                 <div class="column is-full">
                                     <h2 class="title has-text-centered"> About Project </h2>
+                                    {% if current_user.is_admin or current_user.username ==  project['manager_id'] %}
+                                        <a href="{{ url_for('update_project_page',project_id=project['pr_id']) }}" class="button is-warning has-text-centered ">
+                                            Edit Project
+                                        </a>
+                                    {% endif %}
 
                                     <div class="control is-full">
                                         <p style="font-weight:bold"> Project Name : <a> {{ project['pr_name'] }} </a>
@@ -27,7 +32,7 @@
                                 <div class="column is-full">
                                     <div class="control">
                                         <p style="font-weight:bold"> Project Leader :
-                                            <a> {{ project['first_name'] }} </a>
+                                            <a> {{ project['first_name'] }} {{ project['second_name'] }} </a>
                                     </div>
                                 </div>
 
@@ -43,8 +48,15 @@
 
                                 <div class="column is-full">
                                     <h2 class="title has-text-centered"> Teams </h2>
+                                  {% if current_user.is_admin or current_user.username ==  pr['manager_id'] %}
+                                                <a href="{{ url_for('add_team_page') }}" class="button is-success has-text-centered ">
+                                                Add Team
+                                                </a>
+                                        {% endif %}
                                     <table class="table is-striped is-fullwidth">
+
                                         {% for team in teams %}
+
                                             <tr>
                                                 <p style="font-weight:bold">{{ loop.index }}. Team Name :
                                                     <a> {{ team['team_name'] }}</a>
