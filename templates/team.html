@@ -1,0 +1,171 @@
+{% extends "layout2.html" %}
+{% block title %}
+    {{ team['team_name'] }} Team
+{% endblock %}
+{% block content %}
+
+
+    <section class="hero">
+        <div class="hero-body">
+            <div class="container has-text-centered">
+                <h3 class="title">
+                    {{ team['team_name'] }} Team
+                </h3>
+                <table class="table">
+                    <td class="row is-narrow">
+                        <div class="column is-10 ">
+                            <h3 class="title has-text-centered"> Team </h3>
+                            <div class="box">
+
+                                <div class="column is-full">
+                                    <table class="table is-striped is-fullwidth">
+                                        <tr>
+
+
+                                            <td>
+                                                <a style="color: black ; font-weight:bold">
+                                                    Team Name :
+                                                </a>
+
+                                                <a>
+                                                    {{ team['team_name'] }}
+                                                </a>
+                                            </td>
+                                        </tr>
+                                        <td>
+                                            <a style="color: black ; font-weight:bold">
+                                                Team Leader :
+                                            </a>
+
+                                            <a>
+                                                {{ team['first_name'] }} {{ team['second_name'] }}
+                                            </a>
+                                        </td>
+                                        <tr>
+
+                                        </tr>
+
+                                    </table>
+
+
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </td>
+                    <td class="row is-narrow">
+                        <div class="column is-10 ">
+                            <h3 class="title has-text-centered"> Project </h3>
+                            <div class="box">
+
+                                <div class="column is-full">
+                                    <table class="table is-striped is-fullwidth">
+                                        <tr>
+
+
+                                            <td>
+                                                <a style="color: black ; font-weight:bold">
+                                                    Project Name :
+                                                </a>
+
+                                                <a>
+                                                    {{ team['pr_name'] }}
+                                                </a>
+                                            </td>
+                                    </table>
+
+
+                                </div>
+
+
+                            </div>
+                        </div>
+                    </td>
+
+                </table>
+                {% if members %}
+                    {% if current_user.is_admin or current_user.username == team['manager_id'] or current_user.username == team['leader_id'] %}
+                        <h1 class="title"> Members </h1>
+
+                        <div class="column is-10 ">
+                            <div class="box">
+
+                                <div class="column is-full">
+                                    <table class="table is-striped is-fullwidth">
+                                        <tr>
+                                            <td style="font-weight: bold">
+                                                Role
+                                            </td>
+
+                                            <td style="font-weight: bold">
+                                                First Name
+                                            </td>
+                                            <td style="font-weight: bold">
+                                                Second Name
+                                            </td>
+                                            <td style="font-weight: bold">
+                                                Phone
+                                            </td>
+                                            <td style="font-weight: bold">
+                                                Mail
+                                            </td>
+
+
+                                        </tr>
+                                        {% for x in members %}
+
+                                            <tr class="clickable"
+                                                data-href="{{ url_for('profile_page', user_id=x['pid']) }}">
+                                                {% if x['pid'] == team['leader_id'] %}
+                                                    <td>Team Leader
+                                                    {% else %}
+                                                    <td>Employee
+                                                    </td>
+                                                {% endif %}
+
+                                                <td>
+                                                    {{ x['first_name'] }}
+
+
+                                                </td>
+                                                <td>
+                                                    {{ x['second_name'] }}
+                                                </td>
+                                                <td>
+                                                    {{ x['phone'] }}
+                                                </td>
+                                                <td>
+                                                    {{ x['mail'] }}
+
+                                                </td>
+
+                                            </tr>
+
+                                        {% endfor %}
+
+
+                                </div>
+                            </div>
+                        </div>
+                    {% endif %}
+                {% endif %}
+                </table>
+
+            </div>
+        </div>
+    </section>
+    <script>
+        var elements = document.getElementsByClassName('clickable');
+        for (var i = 0; i < elements.length; i++) {
+            var element = elements[i];
+            element.addEventListener('click', function () {
+                var href = this.dataset.href;
+                if (href) {
+                    window.location.assign(href);
+                }
+            })
+        }
+    </script>
+
+{% endblock %}
