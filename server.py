@@ -27,7 +27,7 @@ mydb = mysql.connector.connect(
     password=app.config["password"],
     database=app.config["database"])
 
-cursor = mydb.cursor(dictionary=True)
+cursor = mydb.cursor(dictionary=True, buffered=True)
 
 
 app.config["cursor"] = cursor

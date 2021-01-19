@@ -15,6 +15,25 @@ def findManagerOfProject(project_id,projects):
         if int(project1['pr_id']) == int(project_id):
             return int(project1['manager_id'])
 
+def addAvaragetoPeople(people):
+    checkDBconnection()
+    cursor = current_app.config["cursor"]
+    for person in people:
+        cursor.execute("select * from team_with_members where pid=%(pid)s", {'pid': person['pid']})
+        people_with_score = cursor.fetchall()
+        scores = []
+        if len(people_with_score) <= 0:
+            avarage = 0
+        else:
+            for p in people_with_score:
+                # print(p['score'])
+                scores.append(p['score'])
+                # print(scores)
+            avarage = sum(scores) / len(scores)
+            person['avarage_score'] = avarage
+    return people
+
+
 @login_required
 def task_page(url):
     checkDBconnection()
@@ -60,21 +79,22 @@ def all_persons_page():
     cursor = current_app.config["cursor"]
     cursor.execute("SELECT * FROM person")
     people = cursor.fetchall()
-    for person in people:
-        cursor.execute("select * from team_with_members where pid=%(pid)s",{'pid': person['pid']} )
-        people_with_score = cursor.fetchall()
-        scores=[]
-        if len(people_with_score)<=0:
-            avarage=0
-        else:
-            for p in people_with_score:
-                # print(p['score'])
-                scores.append(p['score'])
-                # print(scores)
-            avarage = sum(scores) / len(scores)
-            person['avarage_score'] = avarage
-
-        print(person)
+    # for person in people:
+    people=addAvaragetoPeople(people)
+    #     cursor.execute("select * from team_with_members where pid=%(pid)s",{'pid': person['pid']} )
+    #     people_with_score = cursor.fetchall()
+    #     scores=[]
+    #     if len(people_with_score)<=0:
+    #         avarage=0
+    #     else:
+    #         for p in people_with_score:
+    #             # print(p['score'])
+    #             scores.append(p['score'])
+    #             # print(scores)
+    #         avarage = sum(scores) / len(scores)
+    #         person['avarage_score'] = avarage
+    #
+    #     print(person)
     title = "All employees"
     return render_template("tasks.html", persons=people, title=title )
 
@@ -391,18 +411,29 @@ def delete_project(project_id):
 def project_page(project_id):
     checkDBconnection()
     cursor=current_app.config["cursor"]
-    cursor.execute("select * from project join person on project.manager_id=person.pid where pr_id=%(pr_id)s", {'pr_id':project_id})
+    cursor.execute("select * from project "
+                   "join person on project.manager_id=person.pid "
+                   "where pr_id=%(pr_id)s", {'pr_id':project_id})
     project = cursor.fetchall()[0]
     cursor.execute("select * from team where pr_id=%(pr_id)s", {'pr_id':project_id})
     teams=cursor.fetchall()
-    cursor.execute("select * from organization join person on organization.pid=person.pid where pr_id=%(pr_id)s and t_id is NULL", {'pr_id': project_id})
+    cursor.execute("select * from organization "
+                   "join person on organization.pid=person.pid "
+                   "where pr_id=%(pr_id)s and t_id is NULL", {'pr_id': project_id})
     people_without_team = cursor.fetchall()
     for peerson in people_without_team:
         if peerson['pid']==project['manager_id']:
             people_without_team.remove(peerson)
 
-    cursor.execute("select * from (organization join person on organization.pid=person.pid join team on team.t_id=organization.t_id ) where organization.pr_id=%(pr_id)s order by organization.t_id and person.pid asc", {'pr_id':project_id})
+    cursor.execute("select * from "
+                   "(organization join person on organization.pid=person.pid "
+                   "join team on team.t_id=organization.t_id ) "
+                   "where organization.pr_id=%(pr_id)s "
+                   "order by organization.t_id and person.pid asc", {'pr_id':project_id})
     people_with_team = cursor.fetchall()
+
+    people_without_team=addAvaragetoPeople(people_without_team)
+    people_with_team = addAvaragetoPeople(people_with_team)
 
     return render_template("project.html",project=project,teams=teams,people_with_team=people_with_team,people_without_team=people_without_team)
 
@@ -645,7 +676,12 @@ def team_page(team_id):
                    "inner join person on team_with_members.pid = person.pid "
                    "where t_id=%(t_id)s ",{'t_id': team_id})
     members = cursor.fetchall()
-    print(team)
+    sum = 0
+    counter = 0
+    for person in members:
+        counter = counter + 1
+        sum = sum + person['score']
+    team['avarage_score'] = sum / counter
 
 
     return render_template("team.html",team=team,members=members)

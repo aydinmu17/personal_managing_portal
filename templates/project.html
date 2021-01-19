@@ -126,6 +126,9 @@
                                                 <td style="font-weight: bold">
                                                     Mail
                                                 </td>
+                                                <td style="font-weight: bold">
+                                                    Total Score in this company
+                                                </td>
 
 
                                             </tr>
@@ -148,6 +151,13 @@
                                                     <td>
                                                         {{ x['mail'] }}
 
+                                                    </td>
+                                                        <td>
+                                                        {% if x['avarage_score'] %}
+                                                            {{ x['avarage_score'] }}
+                                                        {% else %}
+                                                            No score
+                                                        {% endif %}
                                                     </td>
 
                                                 </tr>
@@ -222,6 +232,13 @@
                                                     <td>
                                                         {{ x['team_name'] }}
 
+                                                    </td>
+                                                 <td>
+                                                        {% if x['avarage_score'] %}
+                                                            {{ x['avarage_score'] }}
+                                                        {% else %}
+                                                            No score
+                                                        {% endif %}
                                                     </td>
 
                                                 </tr>
