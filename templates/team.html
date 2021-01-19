@@ -15,7 +15,7 @@
                     <td class="row is-narrow">
                         <div class="column is-10 ">
                             <h3 class="title has-text-centered"> Team </h3>
-                                                            {% if not current_user.username == team['leader_id'] %}
+                                                            {% if current_user.is_admin or current_user.username == team['manager_id'] %}
                                     <a class="button is-warning" href="{{ url_for('update_team_page', team_id=team['t_id'])}}">Edit Team</a>
                                 {% endif %}
 
@@ -64,7 +64,7 @@
                     <td class="row is-narrow">
                         <div class="column is-10 ">
                             <h3 class="title has-text-centered"> Project </h3>
-                            {% if not current_user.username == team['leader_id'] %}
+                            {% if current_user.is_admin %}
                                 <a class="button is-warning" href="{{ url_for('update_team_page', team_id=team['t_id'])}}">Edit Project</a>
                             {% endif %}
                             <div class="box">
@@ -124,6 +124,10 @@
                                             </td>
                                             <td style="font-weight: bold">
                                                 Mail
+                                            </td>                                            <td style="font-weight: bold">
+                                                Score
+                                            </td>                                            <td style="font-weight: bold">
+                                                Comment About
                                             </td>
 
 
@@ -133,7 +137,7 @@
                                             <tr class="clickable"
                                                 data-href="{{ url_for('profile_page', user_id=x['pid']) }}">
                                                 {% if x['pid'] == team['leader_id'] %}
-                                                    <td>Team Leader
+                                                    <td style="font-weight: bold">Team Leader
                                                     {% else %}
                                                     <td>Employee
                                                     </td>
@@ -154,6 +158,16 @@
                                                     {{ x['mail'] }}
 
                                                 </td>
+                                            {% if not current_user.role == "employee" %}
+                                                                                           <td>
+                                                    {{ x['score'] }}
+
+                                                </td>
+                                               <td>
+                                                    {{ x['comment'] }}
+
+                                                </td>
+                                            {% endif %}
 
                                             </tr>
 
