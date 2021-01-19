@@ -698,3 +698,21 @@ def my_teams_page():
     print(list)
 
     return render_template("list2.html", title=title, list=list)
+
+def team_page(team_id):
+    checkDBconnection()
+    cursor=current_app.config["cursor"]
+    cursor.execute("select * from team "
+                   "inner join person on team.leader_id=person.pid "
+                   "inner join project on team.pr_id = project.pr_id "
+                   "where team.t_id=%(t_id)s", {'t_id':team_id})
+    team = cursor.fetchall()[0]
+    cursor.execute("select * from team_with_members "
+                   "inner join person on team_with_members.pid = person.pid "
+                   "where t_id=%(t_id)s",{'t_id': team_id})
+    members = cursor.fetchall()
+    print(members)
+
+
+    return render_template("team.html",team=team,members=members)
+
