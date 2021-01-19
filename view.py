@@ -59,9 +59,24 @@ def all_persons_page():
         abort(401)
     cursor = current_app.config["cursor"]
     cursor.execute("SELECT * FROM person")
-    persons = cursor.fetchall()
+    people = cursor.fetchall()
+    for person in people:
+        cursor.execute("select * from team_with_members where pid=%(pid)s",{'pid': person['pid']} )
+        people_with_score = cursor.fetchall()
+        scores=[]
+        if len(people_with_score)<=0:
+            avarage=0
+        else:
+            for p in people_with_score:
+                # print(p['score'])
+                scores.append(p['score'])
+                # print(scores)
+            avarage = sum(scores) / len(scores)
+            person['avarage_score'] = avarage
+
+        print(person)
     title = "All employees"
-    return render_template("tasks.html", persons=persons, title=title )
+    return render_template("tasks.html", persons=people, title=title )
 
 
 def signup_page():
@@ -360,10 +375,15 @@ def delete_project(project_id):
         abort(403)
     cursor= current_app.config["cursor"]
     mydb= current_app.config["mydb"]
+    cursor.execute("select * from organization where pr_id = %(pr_id)s", {'pr_id': project_id})
+    teams=cursor.fetchall()
     cursor.execute("select * from project where pr_id=%(pr_id)s", {'pr_id': project_id})
     project = cursor.fetchall()[0]
     cursor.execute("DELETE FROM PROJECT WHERE pr_id=%(pr_id)s", {'pr_id': project_id})
     cursor.execute("DELETE FROM ORGANIZATION WHERE pr_id=%(pr_id)s", {'pr_id': project_id})
+    for team in teams:
+        cursor.execute("DELETE FROM team_with_members WHERE t_id=%(t_id)s", {'t_id': team['t_id']})
+
     mydb.commit()
     flash(project['pr_name']+" removed")
     return redirect(url_for('my_projects_page'))
@@ -630,3 +650,30 @@ def team_page(team_id):
 
     return render_template("team.html",team=team,members=members)
 
+@login_required
+def delete_team(team_id):
+
+    checkDBconnection()
+    cursor=current_app.config["cursor"]
+    mydb=current_app.config["mydb"]
+    cursor.execute("select * from organization "
+                   "inner join project on organization.pr_id = project.pr_id "
+                   "inner join team on organization.pr_id = team.pr_id "
+                   "where team.t_id = %(t_id)s",{'t_id': team_id})
+    team = cursor.fetchall()[0]
+    project_id=team['pr_id']
+    project_manager_id = team['manager_id']
+    if not (current_user.is_admin or current_user.username == project_manager_id):
+        abort(403)
+
+    cursor.execute("delete from team_with_members "
+                   "where t_id = %(t_id)s",{'t_id': team_id})
+    mydb.commit()
+    cursor.execute("delete from organization "
+                   "where t_id = %(t_id)s",{'t_id': team_id})
+    mydb.commit()
+    cursor.execute("delete from team "
+                   "where t_id = %(t_id)s",{'t_id': team_id})
+    mydb.commit()
+    flash(team['team_name'] + " team deleted")
+    return redirect(url_for('project_page',project_id=project_id))

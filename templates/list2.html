@@ -46,7 +46,9 @@
                             </a>
                         </td>
                         <td>
-                            {{ x['pr_name'] }}
+                            <a href="{{ url_for('project_page', project_id=x['pr_id']) }}">
+                                {{ x['pr_name'] }}
+                            </a>
 
                         </td>
                         <td>
@@ -61,9 +63,9 @@
                                  </span>
                                 {% if current_user.is_admin %}
                                     <span>
-                                    <a href="{{ url_for('delete_project', project_id=x['pr_id']) }} "
+                                    <a href="{{ url_for('delete_team', team_id=x['t_id']) }} "
                                        class="button is-small is-danger">
-                                    <p>Delete Project dont touch this button for now </p>
+                                    <p>Delete Team </p>
                                     </a>
                                  </span>
                                 {% endif %}

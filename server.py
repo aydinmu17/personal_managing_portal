@@ -64,6 +64,8 @@ app.add_url_rule("/myTeams", view_func=view.my_teams_page, methods=["GET", "POST
 app.add_url_rule("/team/<int:team_id>", view_func=view.team_page, methods=["GET", "POST"])
 app.add_url_rule("/editTeam/<int:team_id>", view_func=view.update_team_page, methods=["GET", "POST"])
 app.add_url_rule("/assigntoTeamfromProject/<int:project_id>/<string:purpose>", view_func=view.assign_to_team_page, methods=["GET", "POST"])
+app.add_url_rule("/deleteTeam/<int:team_id>", view_func=view.delete_team, methods=["GET", "POST"])
+
 
 TaskManager = Tasks()
 TaskManager.add_all_tasks()

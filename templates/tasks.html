@@ -45,7 +45,14 @@
             </a>
 
         </td>
-     </a>
+        <td>
+            {% if person['avarage_score'] %}
+                {{ person['avarage_score'] }}
+            {% else %}
+                There is no score
+            {% endif %}
+        </td>
+        </a>
     </tr>
             {% if title != "Select Employee" %}
 <script>
