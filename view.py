@@ -513,8 +513,9 @@ def assign_to_team_page(project_id,purpose):
     teams=cursor.fetchall()
     if request.method == 'POST':
         user_ids=request.form.getlist("user_id")
-        team_id=request.form["team"]
         if purpose == "assign":
+            team_id = request.form["team"]
+
             for user_id in user_ids:
                 sql = "UPDATE organization SET t_id=%s WHERE pid=%s and pr_id=%s"
                 data = (team_id,user_id,project_id)
@@ -532,27 +533,32 @@ def assign_to_team_page(project_id,purpose):
         elif purpose == "takeOutfromTeam":
             for user_id in user_ids:
                 cursor.execute("select * from organization where pid=%(pid)s and pr_id=%(pr_id)s ",{'pid':user_id,'pr_id':project_id})
-                old_team=cursor.fetchall()[0]['t_id']
                 sql = "UPDATE organization SET t_id = NULL WHERE pid=%s and pr_id=%s"
                 data = (user_id, project_id)
                 cursor.execute(sql, data)
                 mydb.commit()
-                sql = "delete from team_with_members WHERE pid=%s and t_id=%s"
-                data = (user_id, old_team)
-                cursor.execute(sql, data)
-                mydb.commit()
+                cursor.execute("select * from team where pr_id = %(pr_id)s",{'pr_id':project_id})
+                teamIDs = cursor.fetchall()
+                for old_team in teamIDs:
+                    sql = "delete from team_with_members WHERE pid=%s and t_id=%s"
+                    data = (user_id, old_team['t_id'])
+                    cursor.execute(sql, data)
+                    mydb.commit()
 
             flash("users removed")
+
             return redirect(url_for('project_page', project_id=project_id))
         elif purpose == "updateMember":
+            team_id = request.form["team"]
             for user_id in user_ids:
                 cursor.execute("select * from organization where pid=%(pid)s and pr_id=%(pr_id)s ",{'pid':user_id,'pr_id':project_id})
                 old_team=cursor.fetchall()[0]['t_id']
                 sql = "UPDATE organization SET t_id = %s WHERE pid=%s and pr_id=%s"
-                data = (user_id,team_id, project_id)
+                data = (team_id,user_id, project_id)
                 cursor.execute(sql, data)
                 mydb.commit()
                 sql = "update team_with_members set t_id=%s where pid=%s and t_id=%s"
+                print(team_id,user_id,old_team)
                 data = (team_id,user_id, old_team)
                 cursor.execute(sql, data)
                 mydb.commit()
