@@ -7,6 +7,11 @@
     <form action="" method="post" >
 
 <table class="table is-striped is-fullwidth">
+<div style="font-weight: bold">
+    Select Members
+    <br>
+    <br>
+</div>
     {% for person in persons %}
 
     <tr>
@@ -47,17 +52,29 @@
     </tr>
     {% endfor %}
 </table>
-    {% if teams %}
-        <select name="team">
-        {% for team in teams %}
-            <option value="{{team['t_id']}}"> {{team['team_name']}}</option>
-        {% endfor %}
-        </select>
-{% else %}
-        There is no team
+    {% if not(not teams or purpose=="takeOutfromTeam") %}
+            <div style="font-weight: bold">
+        Select a team
+    </div>
+        <div class="select is-2 is-offset-5">
+            <select class="input is-narrow" name="team">
+                {% for team in teams %}
+                    <option value="{{team['t_id']}}"> {{team['team_name']}}</option>
+                {% endfor %}
+            </select>
+        </div>
     {% endif %}
+    <br>
+    <br>
+
         <button class="button is-info" >
-        Assign
+            {% if purpose=="assign" %}
+                Assign
+                {% elif purpose == "updateMember" %}
+                Update
+                {% else %}
+                Remove
+            {% endif %}
         </button>
 
     </form>

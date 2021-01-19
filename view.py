@@ -13,7 +13,6 @@ def findManagerOfProject(project_id,projects):
     for project1 in projects:
         print(project1['pr_name'], project1['pr_id'], project_id)
         if int(project1['pr_id']) == int(project_id):
-            print("ananananan")
             return int(project1['manager_id'])
 
 @login_required
@@ -395,6 +394,13 @@ def add_project():
         val = (max_pr_id + 1, manager_id, project_name,1)
         cursor.execute(sql, val)
         mydb.commit()
+
+        sql = "INSERT INTO organization(pid,pr_id) " \
+              "VALUES (%s,%s)"
+        val = (manager_id, max_pr_id+1)
+        cursor.execute(sql, val)
+        mydb.commit()
+
         flash(project_name + " added")
         return redirect(url_for("add_team_page"))
 
@@ -430,6 +436,10 @@ def update_project_page(project_id):
         request.form['project_name'],request.form['manager_id'], request.form['is_active'],project_id)
         cursor.execute(sql, data)
         mydb.commit()
+
+        cursor.execute("UPDATE organization SET "
+                       "pid=%(new_manager)s WHERE pr_id=%(pr_id)s and pid=%(old_manager)s",{'old_manager':manager.username, 'pr_id':project_id, 'new_manager':request.form['manager_id'] })
+        mydb.commit()
         flash("Yeyyy you updated")
         return redirect(url_for('my_projects_page'))
 
@@ -460,6 +470,10 @@ def project_page(project_id):
     teams=cursor.fetchall()
     cursor.execute("select * from organization join person on organization.pid=person.pid where pr_id=%(pr_id)s and t_id is NULL", {'pr_id': project_id})
     people_without_team = cursor.fetchall()
+    for peerson in people_without_team:
+        if peerson['pid']==project['manager_id']:
+            people_without_team.remove(peerson)
+
     cursor.execute("select * from (organization join person on organization.pid=person.pid join team on team.t_id=organization.t_id ) where organization.pr_id=%(pr_id)s order by organization.t_id", {'pr_id':project_id})
     people_with_team = cursor.fetchall()
 
@@ -558,17 +572,32 @@ def update_team_page(team_id):
 
 
     return render_template("add_event.html",team=team,form=form)
-
+@login_required
 def assign_to_team_page(project_id,purpose):
     checkDBconnection()
+
     cursor=current_app.config["cursor"]
     mydb=current_app.config["mydb"]
+    cursor.execute("select * from project where pr_id=%(pr_id)s",{'pr_id':project_id})
+    project = cursor.fetchall()[0]
+    if not (current_user.is_admin or current_user.username==project['manager_id']):
+        abort(403)
+
     if purpose == "assign":
+        title = "Assign Member"
         cursor.execute(
             "select * from organization join person on organization.pid=person.pid where pr_id=%(pr_id)s and t_id is NULL",
             {'pr_id': project_id})
         people = cursor.fetchall()
+        for peerson in people:
+            if peerson['pid'] == project['manager_id']:
+                people.remove(peerson)
     else:
+        if purpose == 'updateMember':
+            title = "Update Member"
+        else:
+            title = "Take Out Member"
+
         cursor.execute(
             "select * from organization join person on organization.pid=person.pid where pr_id=%(pr_id)s and t_id is not NULL",
             {'pr_id': project_id})
@@ -590,8 +619,10 @@ def assign_to_team_page(project_id,purpose):
                 val = (user_id,team_id)
                 cursor.execute(sql, val)
                 mydb.commit()
+
+            flash("users has assigned")
             return redirect(url_for('project_page',project_id=project_id))
-        else:
+        elif purpose == "takeOutfromTeam":
             for user_id in user_ids:
                 cursor.execute("select * from organization where pid=%(pid)s and pr_id=%(pr_id)s ",{'pid':user_id,'pr_id':project_id})
                 old_team=cursor.fetchall()[0]['t_id']
@@ -604,10 +635,25 @@ def assign_to_team_page(project_id,purpose):
                 cursor.execute(sql, data)
                 mydb.commit()
 
+            flash("users removed")
+            return redirect(url_for('project_page', project_id=project_id))
+        elif purpose == "updateMember":
+            for user_id in user_ids:
+                cursor.execute("select * from organization where pid=%(pid)s and pr_id=%(pr_id)s ",{'pid':user_id,'pr_id':project_id})
+                old_team=cursor.fetchall()[0]['t_id']
+                sql = "UPDATE organization SET t_id = %s WHERE pid=%s and pr_id=%s"
+                data = (user_id,team_id, project_id)
+                cursor.execute(sql, data)
+                mydb.commit()
+                sql = "update team_with_members set t_id=%s where pid=%s and t_id=%s"
+                data = (team_id,user_id, old_team)
+                cursor.execute(sql, data)
+                mydb.commit()
+            flash("users updated")
             return redirect(url_for('project_page', project_id=project_id))
 
 
-    return render_template("assign_to_team.html", persons=people,teams=teams,purpose=purpose)
+    return render_template("assign_to_team.html", title =title,persons=people,teams=teams,purpose=purpose)
 
 def my_teams_page():
     checkDBconnection()

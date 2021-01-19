@@ -31,7 +31,7 @@
                                 </div>
                                 <div class="column is-full">
                                     <div class="control">
-                                        <p style="font-weight:bold"> Project Leader :
+                                        <p style="font-weight:bold"> Project Manager :
                                             <a> {{ project['first_name'] }} {{ project['second_name'] }} </a>
                                     </div>
                                 </div>
@@ -48,7 +48,7 @@
 
                                 <div class="column is-full">
                                     <h2 class="title has-text-centered"> Teams </h2>
-                                  {% if current_user.is_admin or current_user.username ==  pr['manager_id'] %}
+                                  {% if current_user.is_admin or current_user.username ==  project['manager_id'] %}
                                                 <a href="{{ url_for('add_team_page') }}" class="button is-success has-text-centered ">
                                                 Add Team
                                                 </a>
@@ -136,10 +136,13 @@
 
                             <div class="column is-full">
                                 <h2 class="title"> People with Team </h2>
-                            <a class="button is-warning" href="{{ url_for('assign_to_team_page', project_id=project['pr_id'] , purpose="edit")}}">Edit teams</a>
+                            <a class="button is-danger" href="{{ url_for('assign_to_team_page', project_id=project['pr_id'] , purpose="takeOutfromTeam")}}">Take Out from Team</a>
+                            <a class="button is-warning" href="{{ url_for('assign_to_team_page', project_id=project['pr_id'] , purpose="updateMember")}}">Update Team Members </a>
                                 <table class="table is-striped is-fullwidth">
                                     <tr>
-
+                                        <td style="font-weight: bold">
+                                            Role
+                                        </td>
 
                                         <td style="font-weight: bold">
                                             First Name
@@ -161,7 +164,15 @@
                                     </tr>
                                     {% for x in people_with_team %}
                                             <tr class="clickable" data-href="{{url_for('profile_page', user_id=x['pid'])}}">
+ <td>
+     {% if x['leader_id'] == x['pid'] %}
+         <p style="font-weight: bold"> Teaem Leader</p>
+         {% else %}
+        Employee
+     {% endif %}
 
+
+                                            </td>
 
                                             <td>
                                                 {{ x['first_name'] }}
