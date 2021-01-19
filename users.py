@@ -13,6 +13,7 @@ class User(UserMixin):
         self.is_admin = False
         self.is_teamleader = False
         self.is_projectmanager = False
+        self.role = "employee"
 
     def get_id(self):
         return self.username
@@ -41,14 +42,17 @@ def get_user(user_id):
         if not len(dbuser) <= 0:
             if dbuser['mail']=="admin@admin.com":
                 user.is_admin = True
+                user.role="admin"
 
         if not user.is_admin:
             cursor.execute("SELECT * FROM TEAM WHERE leader_id=%(pid)s", {'pid': user_id})
             if not len(cursor.fetchall()) <= 0:
                 user.is_teamleader = True
+                user.role="team_leader"
 
             cursor.execute("SELECT * FROM project WHERE manager_id=%(pid)s", {'pid': user_id})
             if not len(cursor.fetchall()) <= 0:
                 user.is_projectmanager = True
+                user.role="project_manager"
 
     return user

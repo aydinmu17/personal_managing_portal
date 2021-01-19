@@ -8,15 +8,18 @@
         <tr>
             {% set i=0 %}
             {% for task_key, task in tasks%}
+                {% if current_user.role == task.role %}
 
                 <td style="padding: 50px;text-align: center;vertical-align: middle; ">
                     <a href="{{url_for('task_page', url=task.url)}}">
                         <button class="button is-centered is-primary" style="border-width: 50px; ">
                             <p>{{ task.title }} </p>
-
                         </button>
                     </a>
                 </td>
+
+                {% endif %}
+
             {% if loop.index % 3 == 0 %}
                 <tr></tr>
             {% endif %}
@@ -25,28 +28,6 @@
         </tr>
     </table>
   </div>
-{% if current_user.is_admin or current_user.is_teamleader %}
-<div class="is-right">
-    <span>
-    <a  href="{{url_for('task_add_page')}} " class="button is-success is-small">
-        <p>Add Task</p>
-    </a>
-    </span>
-
-    <span>
-    <a  href="{{url_for('edit_task_page')}} " class="button is-small is-warning">
-        <p>Edit Task</p>
-    </a>
-    </span>
-    {% if current_user.is_admin %}
-    <span>
-    <a  href="{{url_for('delete_task_page')}} " class="button is-small is-danger">
-        <p>Delete</p>
-    </a>
-    </span>
-    {% endif %}
-</div>
-{% endif %}
 
 
 {% endblock %}

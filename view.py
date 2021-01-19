@@ -16,13 +16,6 @@ def findManagerOfProject(project_id,projects):
             return int(project1['manager_id'])
 
 @login_required
-def tasks_page():
-    checkDBconnection()
-    TaskManager = current_app.config["TaskManager"]
-    tasks = TaskManager.get_tasks()
-    return render_template("tasks.html", tasks=sorted(tasks))
-
-@login_required
 def task_page(url):
     checkDBconnection()
     TaskManager = current_app.config["TaskManager"]
@@ -43,31 +36,7 @@ def task_page(url):
 def define_tasks(user):
     checkDBconnection()
     TaskManager = current_app.config["TaskManager"]
-    if user.is_admin:
-        TaskManager.add_task(Task("All Employees", "all_persons"))
-        TaskManager.add_task(Task("My profile", "my_profile"))
-        TaskManager.add_task(Task("Enroll Project", "enroll_project"))
-        TaskManager.add_task(Task("Projects", "my_projects"))
-        TaskManager.add_task(Task("Add team", "add_team"))
-        TaskManager.add_task(Task("Teams", "my_teams"))
 
-
-    elif user.is_teamleader:
-        TaskManager.add_task(Task("My projects", "my_projects"))
-        TaskManager.add_task(Task("My Team", "my_teams"))
-        TaskManager.add_task(Task("Enroll Project", "enroll_project"))
-        TaskManager.add_task(Task("My profile", "my_profile"))
-
-    elif user.is_projectmanager:
-        TaskManager.add_task(Task("My projects", "my_projects"))
-        TaskManager.add_task(Task("My Team", "my_team"))
-        TaskManager.add_task(Task("Enroll Project", "enroll_project"))
-        TaskManager.add_task(Task("My profile", "my_profile"))
-    else:
-        TaskManager.add_task(Task("Enroll Project", "enroll_project"))
-        TaskManager.add_task(Task("My profile", "my_profile"))
-        TaskManager.add_task(Task("My Team", "my_teams"))
-        TaskManager.add_task(Task("My projects", "my_projects"))
 
 
 
@@ -79,68 +48,8 @@ def main_page():
     TaskManager = current_app.config["TaskManager"]
     tasks = TaskManager.get_tasks()
     if not tasks:
-        define_tasks(current_user)
-
+        TaskManager.add_all_tasks()
     return render_template("main.html", tasks=sorted(tasks))
-
-@login_required
-def task_add_page():
-    checkDBconnection()
-    if not (current_user.is_admin or current_user.is_teamleader):
-        abort(401)
-    if request.method == "GET":
-        return render_template(
-            "task edit.html"
-        )
-    else:
-        form_task = request.form["task"]
-        form_url = request.form["url"]
-        task = Task(form_task, url=int(form_url) if form_url else None)
-        TaskManager = current_app.config["TaskManager"]
-        TaskManager.add_task(task)
-        return redirect(url_for("task_page", url=task.url))
-
-@login_required
-def delete_task_page():
-    checkDBconnection()
-    if not current_user.is_admin:
-        abort(403)
-    TaskManager = current_app.config["TaskManager"]
-    form_task_keys = request.form.getlist("task_keys")
-    for form_task_key in form_task_keys:
-        TaskManager.delete_task(int(form_task_key))
-    tasks = TaskManager.get_tasks()
-
-    return render_template("task-delete-page.html", tasks=sorted(tasks))
-
-@login_required
-def edit_task_page():
-    checkDBconnection()
-    TaskManager = current_app.config["TaskManager"]
-    if request.method == "GET":
-        tasks = TaskManager.get_tasks()
-        return render_template("task-edit-page.html", tasks=sorted(tasks))
-    else:
-        form_task_key = request.form["form_task_key"]
-        task = TaskManager.get_task(form_task_key)
-
-        return redirect(url_for('edit_task_page_master', task_key=form_task_key))
-
-@login_required
-def edit_task_page_master(task_key):
-    checkDBconnection()
-    if request.method == "GET":
-        TaskManager = current_app.config["TaskManager"]
-        task = TaskManager.get_task(task_key)
-        return render_template("task-edit-page-master.html", task=task
-                               )
-    else:
-        TaskManager = current_app.config["TaskManager"]
-        task = TaskManager.get_task(task_key)
-        new_name = request.form["new_name"]
-        new_url = request.form["new_url"]
-        TaskManager.set_task(task_key, new_name, new_url)
-        return redirect(url_for('task_page', url=task.url))
 
 
 @login_required
@@ -218,7 +127,6 @@ def login_page():
 
                 # flash("Hoşgeldin" + user.username)
                 next_page = request.args.get('next', url_for("main_page"))
-                define_tasks(user)
 
 
 
@@ -234,8 +142,7 @@ def login_page():
 def logout_page():
     checkDBconnection()
     logout_user()
-    TaskManager = current_app.config["TaskManager"]
-    TaskManager.clear_tasks()
+
     flash("You have logged out.")
     return redirect(url_for("main_page"))
 

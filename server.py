@@ -41,18 +41,13 @@ def load_user(user_id):
 app.add_url_rule("/login", view_func=view.login_page, methods=["GET", "POST"])
 app.add_url_rule("/signup", view_func=view.signup_page, methods=["GET", "POST"])
 app.add_url_rule("/logout", view_func=view.logout_page, methods=["GET", "POST"])
-app.add_url_rule("/tasks", view_func=view.tasks_page)
 app.add_url_rule("/myProfile", view_func=view.my_profile_page,methods=["GET", "POST"])
 app.add_url_rule("/profile/<int:user_id>", view_func=view.profile_page,methods=["GET", "POST"])
 app.add_url_rule("/tasks/<url>", view_func=view.task_page)
 app.add_url_rule("/update/<int:user_id>", view_func=view.update_profile_page, methods=["GET", "POST"])
 app.add_url_rule("/", view_func=view.login_page, methods=["GET", "POST"])
-app.add_url_rule("/new-task", view_func=view.task_add_page, methods=["GET", "POST"])
-app.add_url_rule("/task-delete", view_func=view.delete_task_page, methods=["GET", "POST"])
-app.add_url_rule("/task-edit", view_func=view.edit_task_page, methods=["GET", "POST"])
 app.add_url_rule("/main", view_func=view.main_page)
 app.add_url_rule("/allpersons", view_func=view.all_persons_page)
-app.add_url_rule("/task-edit/<int:task_key>", view_func=view.edit_task_page_master, methods=["GET", "POST"])
 
 
 app.add_url_rule("/addProject", view_func=view.add_project, methods=["GET", "POST"])
@@ -71,6 +66,8 @@ app.add_url_rule("/editTeam/<int:team_id>", view_func=view.update_team_page, met
 app.add_url_rule("/assigntoTeamfromProject/<int:project_id>/<string:purpose>", view_func=view.assign_to_team_page, methods=["GET", "POST"])
 
 TaskManager = Tasks()
+TaskManager.add_all_tasks()
+
 
 app.config["TaskManager"] = TaskManager
 
