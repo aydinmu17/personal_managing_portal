@@ -381,7 +381,7 @@ def project_page(project_id):
         if peerson['pid']==project['manager_id']:
             people_without_team.remove(peerson)
 
-    cursor.execute("select * from (organization join person on organization.pid=person.pid join team on team.t_id=organization.t_id ) where organization.pr_id=%(pr_id)s order by organization.t_id", {'pr_id':project_id})
+    cursor.execute("select * from (organization join person on organization.pid=person.pid join team on team.t_id=organization.t_id ) where organization.pr_id=%(pr_id)s order by organization.t_id and person.pid asc", {'pr_id':project_id})
     people_with_team = cursor.fetchall()
 
     return render_template("project.html",project=project,teams=teams,people_with_team=people_with_team,people_without_team=people_without_team)
@@ -623,7 +623,7 @@ def team_page(team_id):
     team['t_id']=team_id
     cursor.execute("select * from team_with_members "
                    "inner join person on team_with_members.pid = person.pid "
-                   "where t_id=%(t_id)s",{'t_id': team_id})
+                   "where t_id=%(t_id)s ",{'t_id': team_id})
     members = cursor.fetchall()
     print(team)
 
