@@ -15,6 +15,13 @@
                     <td class="row is-narrow">
                         <div class="column is-10 ">
                             <h3 class="title has-text-centered"> Team </h3>
+                                                            {% if not current_user.username == team['leader_id'] %}
+                                    <a class="button is-warning" href="{{ url_for('update_team_page', team_id=team['t_id'])}}">Edit Team</a>
+                                {% endif %}
+
+
+
+
                             <div class="box">
 
                                 <div class="column is-full">
@@ -57,6 +64,9 @@
                     <td class="row is-narrow">
                         <div class="column is-10 ">
                             <h3 class="title has-text-centered"> Project </h3>
+                            {% if not current_user.username == team['leader_id'] %}
+                                <a class="button is-warning" href="{{ url_for('update_team_page', team_id=team['t_id'])}}">Edit Project</a>
+                            {% endif %}
                             <div class="box">
 
                                 <div class="column is-full">
@@ -69,7 +79,7 @@
                                                     Project Name :
                                                 </a>
 
-                                                <a>
+                                                <a href="{{ url_for("project_page", project_id=team['pr_id']) }}">
                                                     {{ team['pr_name'] }}
                                                 </a>
                                             </td>
@@ -88,7 +98,12 @@
                     {% if current_user.is_admin or current_user.username == team['manager_id'] or current_user.username == team['leader_id'] %}
                         <h1 class="title"> Members </h1>
 
-                        <div class="column is-10 ">
+                        <div class="column has-text-centered ">
+                        {% if not current_user.username == team['leader_id'] %}
+                            <a class="button is-success" href="{{ url_for('assign_to_team_page', project_id=team['pr_id'] , purpose='assign')}}">Assign Members</a>
+                            <a class="button is-danger" href="{{ url_for('assign_to_team_page', project_id=team['pr_id'] , purpose='takeOutfromTeam')}}">Remove Members</a>
+                            <a class="button is-warning" href="{{ url_for('assign_to_team_page', project_id=team['pr_id'] , purpose='updateMember')}}">Update Members to Another Team</a>
+                        {% endif %}
                             <div class="box">
 
                                 <div class="column is-full">

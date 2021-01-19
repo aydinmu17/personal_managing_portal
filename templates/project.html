@@ -59,7 +59,7 @@
 
                                             <tr>
                                                 <p style="font-weight:bold">{{ loop.index }}. Team Name :
-                                                    <a> {{ team['team_name'] }}</a>
+                                                    <a href="{{ url_for('team_page',team_id = team['t_id']) }}"> {{ team['team_name'] }}</a>
 
 
                                                 </p>

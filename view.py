@@ -707,11 +707,12 @@ def team_page(team_id):
                    "inner join project on team.pr_id = project.pr_id "
                    "where team.t_id=%(t_id)s", {'t_id':team_id})
     team = cursor.fetchall()[0]
+    team['t_id']=team_id
     cursor.execute("select * from team_with_members "
                    "inner join person on team_with_members.pid = person.pid "
                    "where t_id=%(t_id)s",{'t_id': team_id})
     members = cursor.fetchall()
-    print(members)
+    print(team)
 
 
     return render_template("team.html",team=team,members=members)
