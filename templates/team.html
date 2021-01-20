@@ -112,6 +112,7 @@
                             <a class="button is-success" href="{{ url_for('assign_to_team_page', project_id=team['pr_id'] , purpose='assign')}}">Assign Members</a>
                             <a class="button is-danger" href="{{ url_for('assign_to_team_page', project_id=team['pr_id'] , purpose='takeOutfromTeam')}}">Remove Members</a>
                             <a class="button is-warning" href="{{ url_for('assign_to_team_page', project_id=team['pr_id'] , purpose='updateMember')}}">Update Members to Another Team</a>
+                            <a class="button is-warning" href="{{ url_for('evulation_page', team_id=team['t_id'])}}">Evolute Team Members</a>
                         {% endif %}
                             <div class="box">
 
@@ -173,7 +174,7 @@
 
                                                 </td>
                                                <td>
-                                                    {{ x['comment'] }}
+                                                    {{ x['comments'] }}
 
                                                 </td>
                                             {% endif %}

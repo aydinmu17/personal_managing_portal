@@ -18,6 +18,7 @@ def findManagerOfProject(project_id,projects):
 def addAvaragetoPeople(people):
     checkDBconnection()
     cursor = current_app.config["cursor"]
+    mydb = current_app.config["mydb"]
     for person in people:
         cursor.execute("select * from team_with_members where pid=%(pid)s", {'pid': person['pid']})
         people_with_score = cursor.fetchall()
@@ -31,6 +32,9 @@ def addAvaragetoPeople(people):
                 # print(scores)
             avarage = sum(scores) / len(scores)
             person['avarage_score'] = avarage
+            cursor.execute("update person set score = %(score)s where pid = %(pid)s ",{'pid': person['pid'],'score':avarage})
+            mydb.commit()
+
     return people
 
 
@@ -713,3 +717,30 @@ def delete_team(team_id):
     mydb.commit()
     flash(team['team_name'] + " team deleted")
     return redirect(url_for('project_page',project_id=project_id))
+
+
+def evulation_page(team_id):
+    checkDBconnection()
+    cursor = current_app.config["cursor"]
+    mydb = current_app.config["mydb"]
+
+    cursor.execute("select first_name, second_name,person.pid,team_with_members.score,comments from team_with_members join person on team_with_members.pid = person.pid where t_id = %(t_id)s",{'t_id':team_id})
+    members = cursor.fetchall()
+    cursor.execute("select * from team where t_id=%(t_id)s",{'t_id':team_id})
+    team = cursor.fetchall()[0]
+
+    if request.method == "POST":
+        index = 0
+        scores = request.form.getlist('score')
+        commits =request.form.getlist('textarea')
+        for member in members:
+            print(member['score'])
+            cursor.execute("update team_with_members set score = %(score)s , comments= %(commits)s where pid = %(pid)s",{'score': scores[index],'commits':commits[index],'pid':member['pid']})
+            mydb.commit()
+            index = index +1
+        addAvaragetoPeople(members)
+        flash("updated")
+        return redirect(url_for('evulation_page',team_id=team_id))
+
+    return render_template("evulation.html", persons = members,team=team)
+
