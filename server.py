@@ -38,7 +38,7 @@ app.config["mydb"] = mydb
 filepath = os.path.join(".", "init.sql")
 sqlFile = open(filepath, "r").read()
 cursor.execute(sqlFile,multi=True)
-mydb.commit()
+
 
 
 @login_manager.user_loader
