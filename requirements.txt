@@ -9,3 +9,4 @@ datetime
 gunicorn
 email_validator
 mysql-connector-python
+os
