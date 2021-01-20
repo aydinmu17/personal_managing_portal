@@ -6,6 +6,9 @@ from task import Task
 from flask_login import UserMixin, LoginManager
 from users import get_user
 import mysql.connector
+import os
+
+
 
 login_manager = LoginManager()
 app = Flask(__name__)
@@ -32,6 +35,10 @@ cursor = mydb.cursor(dictionary=True, buffered=True)
 
 app.config["cursor"] = cursor
 app.config["mydb"] = mydb
+filepath = os.path.join(".", "init.sql")
+sqlFile = open(filepath, "r").read()
+cursor.execute(sqlFile,multi=True)
+mydb.commit()
 
 
 @login_manager.user_loader
