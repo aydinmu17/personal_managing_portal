@@ -1,0 +1,69 @@
+{% extends "layout2.html" %}
+{% block title %}Evolution for {{ team['team_name'] }}{% endblock %}
+{% block content %}
+
+    {% if persons %}
+        <h1 class="title">Evolution for {{ team['team_name'] }}</h1>
+        <form action="" method="post">
+
+            <table class="table is-striped is-fullwidth">
+
+                <tr>
+                    <td style="font-weight: bold" class="has-text-centered">
+                        First Name
+                    </td>
+                    <td style="font-weight: bold" class="has-text-centered">
+                        Second Name
+                    </td>
+                    <td style="font-weight: bold" class="has-text-centered">
+                        Score
+                    </td>
+                    <td style="font-weight: bold" class="has-text-centered">
+                        Comment
+                    </td>
+                <tr></tr>
+                {% for person in persons %}
+
+                    <td class="has-text-centered">
+
+                        <p>
+                            {{ person['first_name'] }}
+                        </p>
+
+                    </td>
+                    <td class="has-text-centered">
+
+                        <p>
+                            {{ person['second_name'] }}
+                        </p>
+
+                    </td>
+                    <td class="has-text-centered">
+
+
+                        <label>
+                            <input value="{{ person['score'] }}" name="score" class="input" type="text" min="0"
+                                   max="10" step="1">
+                        </label>
+                    </td>
+                    <td class="has-text-centered">
+
+                        <label>
+                                <textarea class="textarea" name="textarea">{% if not person['comments'] == None %}
+                                    {{ person['comments'] }}{% endif %}</textarea>
+                        </label>
+                    </td>
+                    <td></td>
+                    <td>
+
+                    </td>
+                    </tr>
+
+                {% endfor %}
+            </table>
+            <button class="button is-success">Send</button>
+
+        </form>
+    {% endif %}
+
+{% endblock %}
