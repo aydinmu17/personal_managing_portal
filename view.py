@@ -201,7 +201,10 @@ def profile_page(user_id):
     cursor = current_app.config["cursor"]
     cursor.execute("SELECT * FROM PERSON WHERE pid=%(pid)s", {'pid': user_id})
     user = cursor.fetchall()[0]
-    return render_template("profile.html", user=user)
+    cursor.execute("select * from team_with_members join team on team.t_id = team_with_members.t_id where pid = %(pid)s ", {'pid':user_id})
+    comments_and_scores = cursor.fetchall()
+    print(comments_and_scores)
+    return render_template("profile.html", user=user,comments_and_scores=comments_and_scores)
 
 
 @login_required

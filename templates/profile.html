@@ -15,8 +15,8 @@
 
         <section class="hero">
             <div class="hero-body">
-                <div class="container has-text-centered">
-                    <div class="column is-4 is-offset-4">
+                <div class="container">
+                    <div class="container is-4 is-offset-4">
                         <h3 class="title has-text-grey">
                             {% if  current_user.username == user['pid'] %}
                                 My Profile
@@ -25,44 +25,73 @@
 
                             {% endif %}
                         </h3>
-                        <div class="box">
-                            <form>
 
-                                <div class="column is-full">
-                                    <div class="control is-full">
-                                        <p class=""> First Name :
-                                        <p><input disabled class="input is-large" id="firstname" name="firstname"
-                                                  type="text" value="{{ user['first_name'] }}">
-                                    </div>
-                                </div>
-                                <div class="column is-full">
-                                    <div class="control">
-                                        <p class=""> Second Name :
-                                        <p><input disabled class="input is-large" id="secondname" name="secondname"
-                                                  type="text" value="{{ user['second_name'] }}">
-                                    </div>
-                                </div>
-                                <div class="column is-full">
-                                    <div class="control">
-                                        <p class=""> Phone :
-                                        <p><input disabled class="input is-large" id="phone" name="phone"
-                                                  type="text" value="{{ user['phone'] }}">
-                                    </div>
-                                </div>
-                                <div class="column is-full">
-                                    <div class="control">
-                                        <p class=""> Mail Adress :
-                                        <p><input disabled class="input is-large" id="mail" name="mail"
-                                                  type="text" value="{{ user['mail'] }}">
-                                    </div>
+                        <table class="table has-text-centered">
+                            <td>
+                                <div class="box">
+                                    <form>
+
+                                        <div class="column is-full">
+                                            <div class="control is-full">
+                                                <p class=""> First Name :
+                                                <p><input disabled class="input is-large" id="firstname"
+                                                          name="firstname"
+                                                          type="text" value="{{ user['first_name'] }}">
+                                            </div>
+                                        </div>
+                                        <div class="column is-full">
+                                            <div class="control">
+                                                <p class=""> Second Name :
+                                                <p><input disabled class="input is-large" id="secondname"
+                                                          name="secondname"
+                                                          type="text" value="{{ user['second_name'] }}">
+                                            </div>
+                                        </div>
+                                        <div class="column is-full">
+                                            <div class="control">
+                                                <p class=""> Phone :
+                                                <p><input disabled class="input is-large" id="phone" name="phone"
+                                                          type="text" value="{{ user['phone'] }}">
+                                            </div>
+                                        </div>
+                                        <div class="column is-full">
+                                            <div class="control">
+                                                <p class=""> Mail Adress :
+                                                <p><input disabled class="input is-large" id="mail" name="mail"
+                                                          type="text" value="{{ user['mail'] }}">
+                                            </div>
+                                        </div>
+
+                                        <br><a href="{{ url_for('update_profile_page', user_id=user['pid']) }}"
+                                               class="button is-block is-warning is-small is-fullwidth">
+                                        Update data
+                                    </a>
+                                    </form>
                                 </div>
 
-                                <br><a href="{{ url_for('update_profile_page', user_id=user['pid']) }}"
-                                       class="button is-block is-warning is-small is-fullwidth">
-                                Update data
-                            </a>
-                            </form>
-                        </div>
+                            </td>
+                        {% if current_user.is_admin %}
+
+                            <td>
+                                {% for x in comments_and_scores %}
+                                    <div class="box">
+                                        <div class="column is-full">
+                                            <div class="control is-full">
+
+                                                <p style="font-weight: bold">{{ x['team_name'] }}</p>
+                                                Score: {{ x['score'] }}<br>
+                                                <div class="box">
+                                                    {{ x['comments'] }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </div>
+                                {% endfor %}
+
+                            </td>
+                        {% endif %}
+
+                        </table>
                     </div>
                 </div>
             </div>
