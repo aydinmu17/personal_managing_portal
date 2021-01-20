@@ -695,6 +695,8 @@ def team_page(team_id):
 
 @login_required
 def delete_team(team_id):
+    if not(current_user.is_admin or current_user.is_projectmanager):
+        abort(403)
 
     checkDBconnection()
     cursor=current_app.config["cursor"]
@@ -721,8 +723,10 @@ def delete_team(team_id):
     flash(team['team_name'] + " team deleted")
     return redirect(url_for('project_page',project_id=project_id))
 
-
+@login_required
 def evulation_page(team_id):
+    if current_user.role=="employee":
+        abort(403)
     checkDBconnection()
     cursor = current_app.config["cursor"]
     mydb = current_app.config["mydb"]
